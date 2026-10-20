@@ -167,16 +167,7 @@ export const Navbar: React.FC<NavbarProps> = ({ user, onOpenMobileMenu, onOpenAu
               )}
             </div>
 
-            {/* Switch Account Button */}
-            {onOpenAuthModal && (
-              <button
-                onClick={onOpenAuthModal}
-                className="hidden md:flex items-center gap-1.5 text-xs text-slate-700 hover:text-brand-600 font-semibold px-2.5 py-1.5 rounded-lg hover:bg-slate-100 transition-colors border border-slate-200"
-              >
-                <UserCheck className="w-3.5 h-3.5" />
-                <span>Switch Account</span>
-              </button>
-            )}
+
 
             {/* Profile Avatar & Identity */}
             <div className="flex items-center gap-2 pl-1 sm:pl-2 border-l border-slate-200">

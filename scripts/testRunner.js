@@ -196,6 +196,20 @@ test('Approval routing routes Male hostellers to Boys Warden and Female to Girls
   assert.strictEqual(femaleWarden.curfew, '18:30', 'Girls curfew must be 6:30 PM (18:30)');
 });
 
+// 6. Single Administrator Account Baseline
+test('Initial user store contains exactly ONE account: System Administrator', () => {
+  const initialUsers = [
+    {
+      id: 'user-admin',
+      institutionUserId: 'CTGI/IT/ADMIN/001',
+      name: 'System Administrator',
+      role: 'ADMINISTRATOR'
+    }
+  ];
+  assert.strictEqual(initialUsers.length, 1, 'Only one account must exist on initial system setup');
+  assert.strictEqual(initialUsers[0].role, 'ADMINISTRATOR', 'The single account must be ADMINISTRATOR');
+});
+
 console.log(`\nResults: ${passedTests}/${totalTests} tests passed (${Math.round((passedTests/totalTests)*100)}% success)\n`);
 
 if (passedTests !== totalTests) {

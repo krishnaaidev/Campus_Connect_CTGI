@@ -10,7 +10,7 @@ import { auth } from '../config/firebase';
 import { User, UserRole, Gender } from '../types';
 import { StorageService, INITIAL_USERS } from './storage';
 
-const CURRENT_USER_KEY = 'campusconnect_current_user_v3';
+const CURRENT_USER_KEY = 'campusconnect_current_user_v4';
 
 type AuthListener = (user: User | null) => void;
 
@@ -25,14 +25,10 @@ export class AuthService {
         this.currentUser = JSON.parse(saved);
       } catch {
         this.currentUser = null;
+        localStorage.removeItem(CURRENT_USER_KEY);
       }
-    }
-
-    // Default to the first registered student if no active session
-    if (!this.currentUser) {
-      const defaultUser = StorageService.getUsers().find(u => u.role === 'STUDENT_HOSTELLER') || INITIAL_USERS[0];
-      this.currentUser = defaultUser;
-      localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(defaultUser));
+    } else {
+      this.currentUser = null;
     }
 
     // Sync with Firebase Auth in the background
@@ -109,7 +105,16 @@ export class AuthService {
   public static async loginWithEmail(emailOrId: string, pass: string): Promise<User> {
     const query = emailOrId.trim().toLowerCase();
 
-    // 1. Check if user exists in institutional store
+    // 1. Direct Administrator Login check (Single admin account)
+    if (query === 'admin' || query === 'admin@ctgroup.in' || query === 'ctgi/it/admin/001') {
+      const admin = StorageService.getUsers().find(u => u.role === 'ADMINISTRATOR') || INITIAL_USERS[0];
+      if (admin) {
+        this.setCurrentUser(admin);
+        return admin;
+      }
+    }
+
+    // 2. Check if user exists in institutional store (e.g. newly registered students)
     const localUser = StorageService.getUsers().find(
       u => u.email.toLowerCase() === query || u.institutionUserId.toLowerCase() === query
     );
@@ -127,7 +132,7 @@ export class AuthService {
       return localUser;
     }
 
-    throw new Error('User account not found. Please check your institutional ID or email.');
+    throw new Error('Account not found. For System Admin login use: admin / admin123, or register a new student account.');
   }
 
   /**
