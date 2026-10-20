@@ -1,0 +1,17 @@
+{
+  "short_name": "CampusConnect",
+  "name": "CampusConnect — Smart Student Portal",
+  "description": "Smart College Portal for Hostellers, Day Scholars, Faculty, Wardens, Security, and Administration",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#1747dc",
+  "background_color": "#0f172a",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192 512x512"
+    }
+  ]
+}
