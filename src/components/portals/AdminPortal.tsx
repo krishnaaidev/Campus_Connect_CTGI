@@ -20,7 +20,6 @@ import {
   History, 
   PlusCircle, 
   CheckCircle2, 
-  RotateCcw, 
   Save, 
   Search, 
   Lock, 
@@ -145,15 +144,6 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ admin }) => {
     setSuccessBanner('Institutional policies updated and applied across all campus portals.');
     setTimeout(() => setSuccessBanner(null), 4000);
     loadData();
-  };
-
-  const handleResetSeedData = () => {
-    if (confirm('Are you sure you want to reset all test data back to standard single administrator state?')) {
-      StorageService.resetToDefaults();
-      loadData();
-      setSuccessBanner('Storage successfully reset to official baseline.');
-      setTimeout(() => setSuccessBanner(null), 4000);
-    }
   };
 
   // --- 1. SUBMIT: STUDENT ONLY ---
@@ -375,16 +365,6 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ admin }) => {
           <p className="text-xs text-slate-300 mt-0.5">
             Logged in as: <strong className="text-white">{admin.name}</strong> • Global Provisioning & 11 Departments
           </p>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            onClick={handleResetSeedData}
-            className="bg-slate-800/80 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors border border-slate-700"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Reset Baseline</span>
-          </button>
         </div>
       </div>
 
