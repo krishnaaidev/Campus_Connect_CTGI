@@ -13,36 +13,48 @@ export const DEFAULT_POLICY: InstitutionalPolicy = {
 };
 
 /**
- * Formats a Date or ISO string into Asia/Kolkata local time
+ * Formats a Date or ISO string into Asia/Kolkata local time safely
  */
 export function formatKolkataTime(dateInput: string | Date, options?: Intl.DateTimeFormatOptions): string {
   const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
-  return new Intl.DateTimeFormat('en-IN', {
-    timeZone: 'Asia/Kolkata',
-    dateStyle: 'medium',
-    timeStyle: 'short',
-    ...options
-  }).format(date);
+  try {
+    if (options) {
+      return new Intl.DateTimeFormat('en-IN', {
+        timeZone: 'Asia/Kolkata',
+        ...options
+      }).format(date);
+    }
+    return new Intl.DateTimeFormat('en-IN', {
+      timeZone: 'Asia/Kolkata',
+      dateStyle: 'medium',
+      timeStyle: 'short'
+    }).format(date);
+  } catch (e) {
+    return date.toLocaleString();
+  }
 }
 
 /**
  * Checks if current time is before 2:00 PM IST
  */
 export function isBeforeDayScholarDeadline(dateInput: Date = new Date()): boolean {
-  // Convert date to IST hours and minutes
-  const istFormatter = new Intl.DateTimeFormat('en-IN', {
-    timeZone: 'Asia/Kolkata',
-    hour: 'numeric',
-    minute: 'numeric',
-    hour12: false
-  });
-  
-  const parts = istFormatter.formatToParts(dateInput);
-  const hour = parseInt(parts.find(p => p.type === 'hour')?.value || '0', 10);
-  const minute = parseInt(parts.find(p => p.type === 'minute')?.value || '0', 10);
-  
-  // 14:00 (2:00 PM)
-  return hour < 14 || (hour === 14 && minute === 0);
+  try {
+    const istFormatter = new Intl.DateTimeFormat('en-IN', {
+      timeZone: 'Asia/Kolkata',
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: false
+    });
+    
+    const parts = istFormatter.formatToParts(dateInput);
+    const hour = parseInt(parts.find(p => p.type === 'hour')?.value || '0', 10);
+    const minute = parseInt(parts.find(p => p.type === 'minute')?.value || '0', 10);
+    
+    return hour < 14 || (hour === 14 && minute === 0);
+  } catch (e) {
+    const hours = dateInput.getHours();
+    return hours < 14;
+  }
 }
 
 /**
