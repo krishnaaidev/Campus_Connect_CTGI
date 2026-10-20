@@ -210,6 +210,36 @@ test('Initial user store contains exactly ONE account: System Administrator', ()
   assert.strictEqual(initialUsers[0].role, 'ADMINISTRATOR', 'The single account must be ADMINISTRATOR');
 });
 
+// 7. Departmental Provisioning Hierarchy
+test('Institutional registration hierarchy enforces proper creation delegation', () => {
+  function canRegisterRole(creatorRole, targetRole) {
+    if (creatorRole === 'ADMINISTRATOR') return true; // Admin can create all categories
+    if (creatorRole === 'HOI') return targetRole === 'HOD';
+    if (creatorRole === 'HOD') return targetRole === 'CLASS_INCHARGE';
+    if (creatorRole === 'CLASS_INCHARGE') return targetRole.startsWith('STUDENT');
+    return false;
+  }
+
+  // Class Incharge registers Students
+  assert.strictEqual(canRegisterRole('CLASS_INCHARGE', 'STUDENT_HOSTELLER'), true, 'Class Incharge can register Hosteller Student');
+  assert.strictEqual(canRegisterRole('CLASS_INCHARGE', 'STUDENT_DAYSCHOLAR'), true, 'Class Incharge can register Day Scholar Student');
+  assert.strictEqual(canRegisterRole('CLASS_INCHARGE', 'HOD'), false, 'Class Incharge cannot register HOD');
+
+  // HOD registers Class Incharge
+  assert.strictEqual(canRegisterRole('HOD', 'CLASS_INCHARGE'), true, 'HOD can register Class Incharge');
+  assert.strictEqual(canRegisterRole('HOD', 'HOI'), false, 'HOD cannot register HOI');
+
+  // HOI registers HOD
+  assert.strictEqual(canRegisterRole('HOI', 'HOD'), true, 'HOI can register HOD');
+  assert.strictEqual(canRegisterRole('HOI', 'ADMINISTRATOR'), false, 'HOI cannot register Admin');
+
+  // Admin registers HOI, HOD, and ALL other categories
+  assert.strictEqual(canRegisterRole('ADMINISTRATOR', 'HOI'), true, 'Admin can register HOI');
+  assert.strictEqual(canRegisterRole('ADMINISTRATOR', 'HOSTEL_WARDEN'), true, 'Admin can register Warden');
+  assert.strictEqual(canRegisterRole('ADMINISTRATOR', 'GATEKEEPER'), true, 'Admin can register Gatekeeper');
+  assert.strictEqual(canRegisterRole('ADMINISTRATOR', 'STUDENT_HOSTELLER'), true, 'Admin can register Student');
+});
+
 console.log(`\nResults: ${passedTests}/${totalTests} tests passed (${Math.round((passedTests/totalTests)*100)}% success)\n`);
 
 if (passedTests !== totalTests) {
