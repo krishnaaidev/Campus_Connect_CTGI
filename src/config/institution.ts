@@ -12,6 +12,115 @@ export const GIRLS_HOSTEL_BLOCKS = [
   'Kasturba Block (Girls)'
 ];
 
+// 11 Official CT Group of Institutions Departments
+export interface CTDepartmentInfo {
+  code: string;
+  name: string;
+  subDepartments: string[];
+  description: string;
+}
+
+export const CT_DEPARTMENTS: CTDepartmentInfo[] = [
+  {
+    code: 'CTIEMT',
+    name: 'CT Institute of Engineering, Management & Technology',
+    subDepartments: ['APPLIED SCIENCES', 'CSE', 'CSE-AIML', 'CE', 'ME'],
+    description: 'All B.Tech Engineering Programs (Applied Sciences 1st Year | CSE, CSE-AIML, CE, ME 2nd Year+)'
+  },
+  {
+    code: 'CTIMT',
+    name: 'CT Institute of Management & Technology',
+    subDepartments: ['MBA', 'BBA', 'B.Com', 'Management Studies'],
+    description: 'Business Administration & Management Studies'
+  },
+  {
+    code: 'CTIPS',
+    name: 'CT Institute of Pharmaceutical Sciences',
+    subDepartments: ['B.Pharmacy', 'M.Pharmacy', 'Pharm.D'],
+    description: 'Pharmaceutical Sciences & Research'
+  },
+  {
+    code: 'CTIL',
+    name: 'CT Institute of Law',
+    subDepartments: ['BA LLB', 'B.Com LLB', 'LLB'],
+    description: 'Legal Studies & Jurisprudence'
+  },
+  {
+    code: 'CTPC',
+    name: 'CT Polytechnic College',
+    subDepartments: ['Civil Diploma', 'Mechanical Diploma', 'Electrical Diploma'],
+    description: 'Polytechnic Engineering & Technical Diplomas'
+  },
+  {
+    code: 'CTIHS',
+    name: 'CT Institute of Higher Studies',
+    subDepartments: ['Arts & Humanities', 'Journalism & Mass Comm', 'Animation & Multimedia'],
+    description: 'Higher Studies, Humanities & Media Arts'
+  },
+  {
+    code: 'CTIAP',
+    name: 'CT Institute of Architecture & Planning',
+    subDepartments: ['B.Architecture', 'Interior Design', 'Urban Planning'],
+    description: 'Architecture & Environmental Planning'
+  },
+  {
+    code: 'CTCP',
+    name: 'CT College of Pharmacy',
+    subDepartments: ['Pharmacy Practice', 'Clinical Pharmacology', 'Pharmaceutical Quality'],
+    description: 'Pharmacy Education & Healthcare'
+  },
+  {
+    code: 'CTIHpM',
+    name: 'CT Institute of Hospitality & Hotel Management',
+    subDepartments: ['Hotel Management', 'Culinary Arts', 'Airlines & Tourism'],
+    description: 'Hospitality, Catering & Tourism Management'
+  },
+  {
+    code: 'MK COLLEGE',
+    name: 'MK College',
+    subDepartments: ['General Studies', 'Education', 'Applied Humanities'],
+    description: 'Undergraduate Higher Education & Applied Programs'
+  },
+  {
+    code: 'CCPC',
+    name: 'CT Community Polytechnic College',
+    subDepartments: ['Skill Development', 'Vocational Trades', 'Community Technical Training'],
+    description: 'Community Technical Education & Skill Building'
+  }
+];
+
+export const CTIEMT_BTECH_BRANCHES = [
+  'CSE',
+  'CSE-AIML',
+  'CE',
+  'ME'
+];
+
+export const CTIEMT_FIRST_YEAR_BRANCH = 'APPLIED SCIENCES';
+
+/**
+ * Returns the academic year (1, 2, 3, or 4) from the given semester (1 to 8).
+ */
+export function getYearFromSemester(semester: number): number {
+  return Math.ceil(semester / 2) || 1;
+}
+
+/**
+ * Computes official branch for a student following CTIEMT 1st Year Applied Science rule:
+ * For 1st Year (Semester 1 & 2), the B.Tech student branch is strictly "APPLIED SCIENCES".
+ * Branch separation (CSE, CSE-AIML, CE, ME, etc.) begins from 2nd Year (Semester 3+).
+ */
+export function computeStudentBranch(department: string, semester: number, selectedBranch?: string): string {
+  if (department === 'CTIEMT') {
+    const year = getYearFromSemester(semester);
+    if (year === 1) {
+      return CTIEMT_FIRST_YEAR_BRANCH;
+    }
+    return selectedBranch || 'CSE';
+  }
+  return selectedBranch || department;
+}
+
 export const DEFAULT_POLICY: InstitutionalPolicy = {
   collegeName: "CT Group of Institutions (CTGI)",
   campusName: "Shahpur & Maqsudan Campuses, Jalandhar",

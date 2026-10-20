@@ -11,6 +11,7 @@ export type UserRole =
   | 'CLASS_INCHARGE'
   | 'HOD'
   | 'HOI'
+  | 'FACULTY'
   | 'FEE_STAFF'
   | 'DRCC_STAFF'
   | 'DEAN_STUDENT_WELFARE'
@@ -21,14 +22,17 @@ export type UserRole =
 
 export interface User {
   id: string;
-  institutionUserId: string; // e.g. CTGI/2023/CSE/042
+  institutionUserId: string; // e.g. CTGI/2026/CTIEMT/CSE/042
   name: string;
   email: string;
   phone: string;
   role: UserRole;
   gender: Gender;
   avatarUrl?: string;
-  department?: string; // e.g. Computer Science & Engineering
+  department?: string; // e.g. CTIEMT, CTIMT, etc.
+  branch?: string;     // e.g. APPLIED SCIENCES, CSE, CSE-AIML, CE, ME
+  subDepartment?: string;
+  year?: number;       // 1, 2, 3, 4
   semester?: number;
   section?: string;
   studentType?: 'HOSTELLER' | 'DAY_SCHOLAR';
@@ -39,6 +43,8 @@ export interface User {
   classInchargeName?: string;
   guardianName?: string;
   guardianPhone?: string;
+  gateLocation?: string; // For Gatekeeper & Security Guards
+  shift?: string;        // Morning, Evening, Night
   active: boolean;
   createdAt: string;
 }

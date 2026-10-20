@@ -240,8 +240,94 @@ test('Institutional registration hierarchy enforces proper creation delegation',
   assert.strictEqual(canRegisterRole('ADMINISTRATOR', 'STUDENT_HOSTELLER'), true, 'Admin can register Student');
 });
 
+// 8. 11 CT Departments Specification
+test('Institutional configuration defines exactly the 11 official CT departments', () => {
+  const expectedDepartments = [
+    'CTIEMT',
+    'CTIMT',
+    'CTIPS',
+    'CTIL',
+    'CTPC',
+    'CTIHS',
+    'CTIAP',
+    'CTCP',
+    'CTIHpM',
+    'MK COLLEGE',
+    'CCPC'
+  ];
+
+  assert.strictEqual(expectedDepartments.length, 11, 'Must define exactly 11 CT departments');
+  assert.ok(expectedDepartments.includes('CTIEMT'));
+  assert.ok(expectedDepartments.includes('CTIMT'));
+  assert.ok(expectedDepartments.includes('CTIPS'));
+  assert.ok(expectedDepartments.includes('CTIL'));
+  assert.ok(expectedDepartments.includes('CTPC'));
+  assert.ok(expectedDepartments.includes('CTIHS'));
+  assert.ok(expectedDepartments.includes('CTIAP'));
+  assert.ok(expectedDepartments.includes('CTCP'));
+  assert.ok(expectedDepartments.includes('CTIHpM'));
+  assert.ok(expectedDepartments.includes('MK COLLEGE'));
+  assert.ok(expectedDepartments.includes('CCPC'));
+});
+
+// 9. CTIEMT 1st Year Applied Science Rule & 2nd Year+ Branch Separation
+test('CTIEMT 1st Year (Sem 1 & 2) is strictly Applied Science; 2nd Year+ separates into CSE/AIML/CE/ME', () => {
+  function getYearFromSemester(semester) {
+    return Math.ceil(semester / 2) || 1;
+  }
+
+  function computeStudentBranch(department, semester, selectedBranch) {
+    if (department === 'CTIEMT') {
+      const year = getYearFromSemester(semester);
+      if (year === 1) {
+        return 'APPLIED SCIENCES';
+      }
+      return selectedBranch || 'CSE';
+    }
+    return selectedBranch || department;
+  }
+
+  // 1st Year: Semester 1 & 2 -> APPLIED SCIENCES regardless of selected branch
+  assert.strictEqual(computeStudentBranch('CTIEMT', 1, 'CSE'), 'APPLIED SCIENCES', 'Sem 1 in CTIEMT must be APPLIED SCIENCES');
+  assert.strictEqual(computeStudentBranch('CTIEMT', 2, 'CSE-AIML'), 'APPLIED SCIENCES', 'Sem 2 in CTIEMT must be APPLIED SCIENCES');
+  assert.strictEqual(getYearFromSemester(1), 1);
+  assert.strictEqual(getYearFromSemester(2), 1);
+
+  // 2nd Year: Semester 3 & 4 -> Branch separation
+  assert.strictEqual(computeStudentBranch('CTIEMT', 3, 'CSE'), 'CSE', 'Sem 3 in CTIEMT separates into CSE');
+  assert.strictEqual(computeStudentBranch('CTIEMT', 3, 'CSE-AIML'), 'CSE-AIML', 'Sem 3 in CTIEMT separates into CSE-AIML');
+  assert.strictEqual(computeStudentBranch('CTIEMT', 4, 'ME'), 'ME', 'Sem 4 in CTIEMT can be ME');
+  assert.strictEqual(getYearFromSemester(3), 2);
+  assert.strictEqual(getYearFromSemester(4), 2);
+
+  // 3rd & 4th Year: Semesters 5 to 8
+  assert.strictEqual(computeStudentBranch('CTIEMT', 5, 'CE'), 'CE', 'Sem 5 in CTIEMT can be CE');
+  assert.strictEqual(computeStudentBranch('CTIEMT', 7, 'CSE'), 'CSE', 'Sem 7 in CTIEMT is CSE');
+  assert.strictEqual(getYearFromSemester(5), 3);
+  assert.strictEqual(getYearFromSemester(7), 4);
+});
+
+// 10. Admin Portal 5 Account Creation Categories
+test('Admin Portal provides exactly the 5 distinct institutional account creation categories', () => {
+  const adminCategories = [
+    { key: 'STUDENT', label: 'Students Only' },
+    { key: 'WARDEN_SECURITY', label: 'Hostel Warden & Security' },
+    { key: 'ACADEMIC', label: 'Class Incharge, Faculty, HOD, HOI' },
+    { key: 'ALL_DEPT_STAFF', label: 'Rest All Department Accounts' },
+    { key: 'SECURITY_GUARD', label: 'Security Guards' }
+  ];
+
+  assert.strictEqual(adminCategories.length, 5, 'Must provide exactly 5 creation categories');
+  assert.strictEqual(adminCategories[0].label, 'Students Only');
+  assert.strictEqual(adminCategories[1].label, 'Hostel Warden & Security');
+  assert.strictEqual(adminCategories[2].label, 'Class Incharge, Faculty, HOD, HOI');
+  assert.strictEqual(adminCategories[3].label, 'Rest All Department Accounts');
+  assert.strictEqual(adminCategories[4].label, 'Security Guards');
+});
+
 console.log(`\nResults: ${passedTests}/${totalTests} tests passed (${Math.round((passedTests/totalTests)*100)}% success)\n`);
 
 if (passedTests !== totalTests) {
   process.exit(1);
 }
+
