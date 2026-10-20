@@ -36,16 +36,18 @@ export class AuthService {
       localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(defaultUser));
     }
 
-    // Sync with Firebase Auth in the background
+    // Sync with Firebase Auth in the background if available
     try {
-      onAuthStateChanged(auth, (fbUser: FirebaseUser | null) => {
-        if (fbUser && fbUser.email) {
-          const matched = StorageService.getUsers().find(u => u.email.toLowerCase() === fbUser.email?.toLowerCase());
-          if (matched) {
-            this.setCurrentUser(matched);
+      if (auth) {
+        onAuthStateChanged(auth, (fbUser: FirebaseUser | null) => {
+          if (fbUser && fbUser.email) {
+            const matched = StorageService.getUsers().find(u => u.email.toLowerCase() === fbUser.email?.toLowerCase());
+            if (matched) {
+              this.setCurrentUser(matched);
+            }
           }
-        }
-      });
+        });
+      }
     } catch (e) {
       console.warn('Firebase Auth state listener note:', e);
     }
@@ -107,22 +109,24 @@ export class AuthService {
    * Real Firebase Auth Login
    */
   public static async loginWithEmail(email: string, pass: string): Promise<User> {
-    try {
-      const cred = await signInWithEmailAndPassword(auth, email, pass);
-      const user = StorageService.getUsers().find(u => u.email.toLowerCase() === cred.user.email?.toLowerCase());
-      if (user) {
-        this.setCurrentUser(user);
-        return user;
+    if (auth) {
+      try {
+        const cred = await signInWithEmailAndPassword(auth, email, pass);
+        const user = StorageService.getUsers().find(u => u.email.toLowerCase() === cred.user.email?.toLowerCase());
+        if (user) {
+          this.setCurrentUser(user);
+          return user;
+        }
+      } catch (firebaseErr: any) {
+        console.warn('Firebase Auth error, checking institutional directory:', firebaseErr.message);
       }
-    } catch (firebaseErr: any) {
-      console.warn('Firebase Auth error, checking local institutional directory:', firebaseErr.message);
-      // Fallback: check institutional user directory if Firebase Auth project email/pass is not yet configured in console
-      const localUser = StorageService.getUsers().find(u => u.email.toLowerCase() === email.toLowerCase());
-      if (localUser) {
-        this.setCurrentUser(localUser);
-        return localUser;
-      }
-      throw new Error(firebaseErr.message || 'Invalid college email or password');
+    }
+
+    // Fallback: check institutional user directory
+    const localUser = StorageService.getUsers().find(u => u.email.toLowerCase() === email.toLowerCase());
+    if (localUser) {
+      this.setCurrentUser(localUser);
+      return localUser;
     }
     throw new Error('User account not registered in CampusConnect system');
   }
@@ -140,11 +144,13 @@ export class AuthService {
     phone: string;
   }): Promise<User> {
     let fbUid = '';
-    try {
-      const cred = await createUserWithEmailAndPassword(auth, params.email, params.password);
-      fbUid = cred.user.uid;
-    } catch (e: any) {
-      console.warn('Firebase user creation note:', e.message);
+    if (auth) {
+      try {
+        const cred = await createUserWithEmailAndPassword(auth, params.email, params.password);
+        fbUid = cred.user.uid;
+      } catch (e: any) {
+        console.warn('Firebase user creation note:', e.message);
+      }
     }
 
     const newUser: User = {
@@ -169,10 +175,12 @@ export class AuthService {
    * Sign Out
    */
   public static async logout(): Promise<void> {
-    try {
-      await firebaseSignOut(auth);
-    } catch (e) {
-      // ignore
+    if (auth) {
+      try {
+        await firebaseSignOut(auth);
+      } catch (e) {
+        // ignore
+      }
     }
     this.setCurrentUser(null);
   }

@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { User, GateEvent, GatePassRequest } from '../../types';
+import { User, GateEvent } from '../../types';
 import { QRService, VerificationResult } from '../../services/qr';
 import { StorageService } from '../../services/storage';
-import { Html5Qrcode } from 'html5-qrcode';
 import { 
   Camera, 
   CameraOff, 
@@ -13,11 +12,7 @@ import {
   Search, 
   ShieldAlert, 
   History, 
-  Sparkles,
-  RefreshCw,
-  Clock,
-  MapPin,
-  Building
+  RefreshCw
 } from 'lucide-react';
 
 interface GatekeeperScannerProps {
@@ -33,18 +28,19 @@ export const GatekeeperScanner: React.FC<GatekeeperScannerProps> = ({ operator }
   const [recentEvents, setRecentEvents] = useState<GateEvent[]>([]);
   const [recordingStatus, setRecordingStatus] = useState<string | null>(null);
 
-  const qrReaderRef = useRef<Html5Qrcode | null>(null);
+  const qrReaderRef = useRef<any>(null);
   const scannerContainerId = 'gatekeeper-qr-reader';
 
   useEffect(() => {
     setRecentEvents(StorageService.getGateEvents().slice(0, 10));
   }, []);
 
-  // Initialize and stop camera scanning
+  // Initialize and stop camera scanning safely with dynamic import
   const startCamera = async () => {
     setCameraError(null);
     setVerificationResult(null);
     try {
+      const { Html5Qrcode } = await import('html5-qrcode');
       if (!qrReaderRef.current) {
         qrReaderRef.current = new Html5Qrcode(scannerContainerId);
       }
@@ -58,11 +54,11 @@ export const GatekeeperScanner: React.FC<GatekeeperScannerProps> = ({ operator }
       await qrReaderRef.current.start(
         { facingMode: 'environment' },
         config,
-        (decodedText) => {
+        (decodedText: string) => {
           handleScanSuccess(decodedText);
           stopCamera();
         },
-        (errorMessage) => {
+        () => {
           // Ignore transient frame errors
         }
       );
@@ -94,7 +90,6 @@ export const GatekeeperScanner: React.FC<GatekeeperScannerProps> = ({ operator }
   }, [isScanning]);
 
   const handleScanSuccess = (rawScannedData: string) => {
-    // Perform server-side validation
     const result = QRService.verifyPass(rawScannedData);
     setVerificationResult(result);
   };
@@ -316,7 +311,7 @@ export const GatekeeperScanner: React.FC<GatekeeperScannerProps> = ({ operator }
             </button>
           </div>
 
-          {/* Student Profile Info (Only verified minimal fields shown for privacy) */}
+          {/* Student Profile Info */}
           {verificationResult.pass && (
             <div className="mt-4 pt-2 space-y-4">
               <div className="flex items-center gap-3.5 bg-white p-3.5 rounded-xl border border-black/5 shadow-2xs">

@@ -11,7 +11,15 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-1LJ5RL90FR"
 };
 
-// Initialize Firebase safely
-const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
-export const auth = getAuth(app);
+let app: any;
+let auth: any;
+
+try {
+  app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+  auth = getAuth(app);
+} catch (e) {
+  console.warn('Firebase initialization warning:', e);
+}
+
+export { auth };
 export default app;

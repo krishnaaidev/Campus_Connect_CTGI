@@ -9,16 +9,6 @@ export default defineConfig({
     host: true
   },
   build: {
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
-          firebase: ['firebase/app', 'firebase/auth'],
-          icons: ['lucide-react'],
-          qr: ['qrcode', 'html5-qrcode']
-        }
-      }
-    },
-    chunkSizeWarningLimit: 1000
+    chunkSizeWarningLimit: 2000
   }
 });
