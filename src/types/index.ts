@@ -1,5 +1,7 @@
 // CampusConnect CTGI — System Types & Permission Schema
 
+export type Gender = 'MALE' | 'FEMALE';
+
 export type UserRole =
   | 'STUDENT_HOSTELLER'
   | 'STUDENT_DAYSCHOLAR'
@@ -24,11 +26,13 @@ export interface User {
   email: string;
   phone: string;
   role: UserRole;
+  gender: Gender;
   avatarUrl?: string;
   department?: string; // e.g. Computer Science & Engineering
   semester?: number;
   section?: string;
   studentType?: 'HOSTELLER' | 'DAY_SCHOLAR';
+  hostelCategory?: 'BOYS_HOSTEL' | 'GIRLS_HOSTEL';
   hostelBlock?: string;
   roomNumber?: string;
   wardenName?: string;
@@ -71,12 +75,14 @@ export interface GatePassRequest {
   studentId: string;
   studentName: string;
   studentNumber: string;
+  gender: Gender;
   studentType: 'HOSTELLER' | 'DAY_SCHOLAR';
+  hostelCategory?: 'BOYS_HOSTEL' | 'GIRLS_HOSTEL';
   department: string;
   semester: number;
   phone: string;
   guardianPhone?: string;
-  hostelInfo?: string; // Block A - Room 204
+  hostelInfo?: string; // e.g. "Tagore Block (Boys) - B-204" or "Sarojini Block (Girls) - S-108"
   requestType: PassType;
   purpose: string;
   destination: string;
@@ -104,6 +110,7 @@ export interface GateEvent {
   passNumber: string;
   studentName: string;
   studentNumber: string;
+  gender?: Gender;
   eventType: 'EXIT' | 'RETURN' | 'VERIFICATION_DENIED';
   operatorId: string;
   operatorName: string;
@@ -194,6 +201,8 @@ export interface HostelComplaint {
   complaintRef: string;
   studentId: string;
   studentName: string;
+  gender?: Gender;
+  hostelCategory?: 'BOYS_HOSTEL' | 'GIRLS_HOSTEL';
   roomInfo: string;
   category: 'WATER' | 'ELECTRICITY' | 'WIFI' | 'CLEANING' | 'MESS_FOOD' | 'CARPENTRY';
   description: string;
@@ -235,6 +244,7 @@ export interface InstitutionalPolicy {
   workingHoursEnd: string; // "16:30"
   dayScholarPassDeadline: string; // "14:00" (2:00 PM cutoff)
   hostellerCurfewTime: string; // "19:30" (7:30 PM)
+  girlsCurfewTime: string; // "18:30" (6:30 PM for Girls Hostel by policy)
   requireDualApprovalForHosteller: boolean; // Academic + Warden
   allowLatePassSubmission: boolean; // Flagged as late, requires supervisor sign-off
 }

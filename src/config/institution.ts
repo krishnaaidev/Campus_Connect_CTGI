@@ -1,5 +1,17 @@
 import { InstitutionalPolicy } from '../types';
 
+export const BOYS_HOSTEL_BLOCKS = [
+  'Tagore Block (Boys)',
+  'Gandhi Block (Boys)',
+  'Bhagat Singh Block (Boys)'
+];
+
+export const GIRLS_HOSTEL_BLOCKS = [
+  'Sarojini Naidu Block (Girls)',
+  'Kalpana Chawla Block (Girls)',
+  'Kasturba Block (Girls)'
+];
+
 export const DEFAULT_POLICY: InstitutionalPolicy = {
   collegeName: "CT Group of Institutions (CTGI)",
   campusName: "Shahpur & Maqsudan Campuses, Jalandhar",
@@ -7,7 +19,8 @@ export const DEFAULT_POLICY: InstitutionalPolicy = {
   workingHoursStart: "09:00",
   workingHoursEnd: "16:30",
   dayScholarPassDeadline: "14:00", // 2:00 PM mandatory cutoff
-  hostellerCurfewTime: "19:30", // 7:30 PM
+  hostellerCurfewTime: "19:30", // 7:30 PM for Boys
+  girlsCurfewTime: "18:30", // 6:30 PM for Girls
   requireDualApprovalForHosteller: true,
   allowLatePassSubmission: true
 };

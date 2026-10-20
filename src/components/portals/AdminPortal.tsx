@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, UserRole, InstitutionalPolicy, AuditLog } from '../../types';
+import { User, UserRole, Gender, InstitutionalPolicy, AuditLog } from '../../types';
 import { StorageService } from '../../services/storage';
 import { 
   Settings, 
@@ -10,9 +10,9 @@ import {
   CheckCircle2, 
   RotateCcw, 
   Save, 
-  Search,
-  Lock,
-  UserCheck
+  Search, 
+  Lock, 
+  UserCheck 
 } from 'lucide-react';
 
 interface AdminPortalProps {
@@ -31,6 +31,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ admin }) => {
   // New User Form State
   const [newName, setNewName] = useState('');
   const [newEmail, setNewEmail] = useState('');
+  const [newGender, setNewGender] = useState<Gender>('MALE');
   const [newRole, setNewRole] = useState<UserRole>('STUDENT_HOSTELLER');
   const [newDept, setNewDept] = useState('Computer Science & Engineering');
   const [newPhone, setNewPhone] = useState('+91 98765 00000');
@@ -58,6 +59,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ admin }) => {
     if (!newName.trim() || !newEmail.trim()) return;
 
     const isStudent = newRole.startsWith('STUDENT');
+    const isHosteller = newRole === 'STUDENT_HOSTELLER';
     const newUser: User = {
       id: `user-${Date.now()}`,
       institutionUserId: `CTGI/2026/${isStudent ? 'STD' : 'FAC'}/${Math.floor(100 + Math.random() * 900)}`,
@@ -65,8 +67,13 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ admin }) => {
       email: newEmail,
       phone: newPhone,
       role: newRole,
+      gender: newGender,
       department: newDept,
-      studentType: newRole === 'STUDENT_HOSTELLER' ? 'HOSTELLER' : newRole === 'STUDENT_DAYSCHOLAR' ? 'DAY_SCHOLAR' : undefined,
+      studentType: isHosteller ? 'HOSTELLER' : newRole === 'STUDENT_DAYSCHOLAR' ? 'DAY_SCHOLAR' : undefined,
+      hostelCategory: isHosteller ? (newGender === 'FEMALE' ? 'GIRLS_HOSTEL' : 'BOYS_HOSTEL') : undefined,
+      hostelBlock: isHosteller ? (newGender === 'FEMALE' ? 'Sarojini Naidu Block (Girls)' : 'Tagore Block (Boys)') : undefined,
+      roomNumber: isHosteller ? (newGender === 'FEMALE' ? 'S-101' : 'T-101') : undefined,
+      wardenName: isHosteller ? (newGender === 'FEMALE' ? 'Dr. Sunita Sharma' : 'Dr. Rajesh Verma') : undefined,
       active: true,
       createdAt: new Date().toISOString()
     };
@@ -358,6 +365,29 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ admin }) => {
                   onChange={(e) => setNewEmail(e.target.value)}
                   className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl"
                 />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-slate-700 font-semibold mb-1">Gender (Hostel Wing) *</label>
+                  <select
+                    value={newGender}
+                    onChange={(e) => setNewGender(e.target.value as Gender)}
+                    className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-medium"
+                  >
+                    <option value="MALE">Male (Boys Wing)</option>
+                    <option value="FEMALE">Female (Girls Wing)</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-slate-700 font-semibold mb-1">Phone Number</label>
+                  <input
+                    type="tel"
+                    value={newPhone}
+                    onChange={(e) => setNewPhone(e.target.value)}
+                    className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl"
+                  />
+                </div>
               </div>
 
               <div>

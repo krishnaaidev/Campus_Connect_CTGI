@@ -7,8 +7,8 @@ export class ApprovalService {
   /**
    * Generates next sequential pass number (e.g. GP-2026-1053 or DS-2026-0413)
    */
-  public static generatePassNumber(type: PassType): string {
-    const prefix = type === 'DAY_SCHOLAR_PASS' ? 'DS' : type === 'EXTENDED_LEAVE' ? 'LV' : 'GP';
+  public static generatePassNumber(type: PassType, gender?: 'MALE' | 'FEMALE'): string {
+    const prefix = type === 'DAY_SCHOLAR_PASS' ? 'DS' : type === 'EXTENDED_LEAVE' ? 'LV' : gender === 'FEMALE' ? 'GP-G' : 'GP-B';
     const year = new Date().getFullYear();
     const randomNum = Math.floor(1000 + Math.random() * 9000);
     return `${prefix}-${year}-${randomNum}`;
@@ -32,7 +32,7 @@ export class ApprovalService {
     const now = new Date();
     const isDayScholar = student.studentType === 'DAY_SCHOLAR';
     const isLateSubmission = isDayScholar && !isBeforeDayScholarDeadline(now);
-    const passNumber = this.generatePassNumber(params.requestType);
+    const passNumber = this.generatePassNumber(params.requestType, student.gender);
     const academicRole = params.academicApproverRole || 'CLASS_INCHARGE';
 
     const approvalSteps: any[] = [];
@@ -41,16 +41,25 @@ export class ApprovalService {
     if (student.studentType === 'HOSTELLER') {
       // Hosteller requires BOTH Academic and Warden approvals!
       initialStatus = 'PENDING_BOTH';
+      
+      // Step 1: Academic Authority
       approvalSteps.push({
         id: `step-${Date.now()}-1`,
         role: academicRole,
-        approverName: student.classInchargeName || 'Department Faculty',
+        approverName: student.classInchargeName || 'Class Incharge',
         status: 'PENDING'
       });
+
+      // Step 2: Hostel Warden (Boys Warden for Male, Girls Warden for Female)
+      const wardenRole = 'HOSTEL_WARDEN';
+      const wardenName = student.wardenName || (student.gender === 'FEMALE' ? 'Dr. Sunita Sharma (Girls Warden)' : 'Dr. Rajesh Verma (Boys Warden)');
+      const wardenId = student.gender === 'FEMALE' ? 'user-warden-girls' : 'user-warden-boys';
+
       approvalSteps.push({
         id: `step-${Date.now()}-2`,
-        role: 'HOSTEL_WARDEN',
-        approverName: student.wardenName || 'Hostel Warden',
+        role: wardenRole,
+        approverName: wardenName,
+        approverId: wardenId,
         status: 'PENDING'
       });
     } else {
@@ -70,12 +79,14 @@ export class ApprovalService {
       studentId: student.id,
       studentName: student.name,
       studentNumber: student.institutionUserId,
+      gender: student.gender,
       studentType: student.studentType || 'DAY_SCHOLAR',
+      hostelCategory: student.hostelCategory,
       department: student.department || 'General',
       semester: student.semester || 1,
       phone: student.phone,
       guardianPhone: student.guardianPhone,
-      hostelInfo: student.hostelBlock ? `${student.hostelBlock} ${student.roomNumber || ''}` : undefined,
+      hostelInfo: student.hostelBlock ? `${student.hostelBlock} - ${student.roomNumber || ''}` : undefined,
       requestType: params.requestType,
       purpose: params.purpose,
       destination: params.destination,
@@ -98,7 +109,7 @@ export class ApprovalService {
       'SUBMIT_GATE_PASS',
       'GATE_PASS',
       newPass.id,
-      `Submitted ${params.requestType} [${passNumber}]${isLateSubmission ? ' (Late Request flagged after 2:00 PM)' : ''}`
+      `Submitted ${params.requestType} [${passNumber}] (${student.gender === 'FEMALE' ? 'Girls' : 'Boys'} Hostel)${isLateSubmission ? ' (Late Request flagged)' : ''}`
     );
 
     // Notify student
@@ -145,7 +156,6 @@ export class ApprovalService {
       pass.validFrom = pass.departureTime;
       pass.validUntil = pass.expectedReturnTime;
 
-      // Notify student
       StorageService.sendNotification({
         userId: pass.studentId,
         title: 'Gate Pass Approved!',
@@ -153,7 +163,6 @@ export class ApprovalService {
         type: 'PASS_APPROVED'
       });
     } else {
-      // Partial approval (e.g. Warden approved, still waiting for Academic)
       const pendingStep = pass.approvalSteps.find(s => s.status === 'PENDING');
       if (pendingStep?.role === 'HOSTEL_WARDEN') {
         pass.status = 'PENDING_WARDEN';
@@ -164,7 +173,6 @@ export class ApprovalService {
 
     StorageService.saveGatePass(pass);
 
-    // Audit log
     StorageService.logAudit(
       approverId,
       approverName,
@@ -200,13 +208,11 @@ export class ApprovalService {
       step.remarks = reason;
     }
 
-    // Immediate rejection of the entire pass
     pass.status = 'REJECTED';
     pass.rejectionReason = reason;
 
     StorageService.saveGatePass(pass);
 
-    // Notify student
     StorageService.sendNotification({
       userId: pass.studentId,
       title: 'Gate Pass Rejected',
@@ -214,7 +220,6 @@ export class ApprovalService {
       type: 'PASS_REJECTED'
     });
 
-    // Audit log
     StorageService.logAudit(
       approverId,
       approverName,

@@ -9,11 +9,11 @@ import {
   LogOut, 
   Shield, 
   GraduationCap, 
-  Menu, 
-  X,
+  User as UserIcon,
   CheckCircle,
   AlertTriangle,
-  FileText
+  FileText,
+  UserCheck
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -28,7 +28,6 @@ export const Navbar: React.FC<NavbarProps> = ({ user, onOpenMobileMenu, onOpenAu
   const [notifications, setNotifications] = useState<any[]>([]);
 
   useEffect(() => {
-    // Update live IST time every 10 seconds
     const updateTime = () => {
       setCurrentTime(formatKolkataTime(new Date(), { 
         weekday: 'short', 
@@ -71,18 +70,8 @@ export const Navbar: React.FC<NavbarProps> = ({ user, onOpenMobileMenu, onOpenAu
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           
-          {/* Left: Brand & Mobile Menu */}
+          {/* Brand */}
           <div className="flex items-center gap-3">
-            {onOpenMobileMenu && (
-              <button
-                onClick={onOpenMobileMenu}
-                className="lg:hidden p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 focus:outline-none"
-                aria-label="Toggle navigation"
-              >
-                <Menu className="w-6 h-6" />
-              </button>
-            )}
-
             <div className="flex items-center gap-2.5">
               <div className="w-10 h-10 rounded-xl bg-brand-700 flex items-center justify-center text-white shadow-md shadow-brand-700/20">
                 <GraduationCap className="w-6 h-6" />
@@ -97,20 +86,20 @@ export const Navbar: React.FC<NavbarProps> = ({ user, onOpenMobileMenu, onOpenAu
                   </span>
                 </div>
                 <div className="text-[11px] text-slate-500 hidden sm:block font-medium">
-                  CT Group of Institutions — Smart Campus Portal
+                  CT Group of Institutions — Smart Student Portal
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Center: Live Asia/Kolkata Clock */}
+          {/* Live Asia/Kolkata Clock */}
           <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-100/80 rounded-full border border-slate-200/80 text-xs text-slate-600">
             <Clock className="w-3.5 h-3.5 text-brand-600" />
-            <span className="font-medium">{currentTime || 'Asia/Kolkata'}</span>
+            <span className="font-medium">{currentTime}</span>
             <span className="text-[10px] font-semibold bg-white text-brand-700 px-1.5 py-0.5 rounded shadow-2xs">IST</span>
           </div>
 
-          {/* Right: Role, Notifications, Profile */}
+          {/* Right: Role, Notifications, Switch Account, Profile */}
           <div className="flex items-center gap-2 sm:gap-3">
             
             {/* Role Badge */}
@@ -136,7 +125,7 @@ export const Navbar: React.FC<NavbarProps> = ({ user, onOpenMobileMenu, onOpenAu
 
               {/* Notification Dropdown */}
               {showNotifications && (
-                <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-xl shadow-2xl border border-slate-200 z-50 py-2 animate-in fade-in slide-in-from-top-2">
+                <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 py-2 animate-in fade-in slide-in-from-top-2">
                   <div className="px-4 py-2 border-b border-slate-100 flex items-center justify-between">
                     <span className="font-semibold text-slate-900 text-sm">Notifications</span>
                     {unreadCount > 0 && (
@@ -178,16 +167,30 @@ export const Navbar: React.FC<NavbarProps> = ({ user, onOpenMobileMenu, onOpenAu
               )}
             </div>
 
+            {/* Switch Account Button */}
+            {onOpenAuthModal && (
+              <button
+                onClick={onOpenAuthModal}
+                className="hidden md:flex items-center gap-1.5 text-xs text-slate-700 hover:text-brand-600 font-semibold px-2.5 py-1.5 rounded-lg hover:bg-slate-100 transition-colors border border-slate-200"
+              >
+                <UserCheck className="w-3.5 h-3.5" />
+                <span>Switch Account</span>
+              </button>
+            )}
+
             {/* Profile Avatar & Identity */}
             <div className="flex items-center gap-2 pl-1 sm:pl-2 border-l border-slate-200">
               <img
-                src={user.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}
+                src={user.avatarUrl || (user.gender === 'FEMALE' ? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150' : 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150')}
                 alt={user.name}
                 className="w-9 h-9 rounded-full object-cover ring-2 ring-brand-100"
               />
               <div className="hidden lg:block text-left">
-                <div className="font-semibold text-xs text-slate-900 leading-tight">
-                  {user.name}
+                <div className="font-semibold text-xs text-slate-900 leading-tight flex items-center gap-1">
+                  <span>{user.name}</span>
+                  <span className="text-[10px] px-1 rounded bg-slate-100 text-slate-600 font-normal">
+                    {user.gender === 'FEMALE' ? 'F' : 'M'}
+                  </span>
                 </div>
                 <div className="text-[10px] text-slate-500 font-mono">
                   {user.institutionUserId}
@@ -197,7 +200,7 @@ export const Navbar: React.FC<NavbarProps> = ({ user, onOpenMobileMenu, onOpenAu
               {/* Logout button */}
               <button
                 onClick={() => AuthService.logout()}
-                title="Logout"
+                title="Sign Out"
                 className="p-1.5 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors ml-1"
               >
                 <LogOut className="w-4 h-4" />

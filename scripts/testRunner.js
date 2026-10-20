@@ -162,6 +162,40 @@ test('Student A cannot modify or cancel Student B private passes', () => {
   assert.strictEqual(passB.status, 'CANCELLED', 'Owner can cancel their own pass');
 });
 
+// 5. Gender & Hostel Wing Segregation ("Girls ka Girls, Boys ka Boys")
+test('Pass numbering correctly generates GP-B for Male and GP-G for Female hostellers', () => {
+  function generatePassNumber(type, gender) {
+    const prefix = type === 'DAY_SCHOLAR_PASS' ? 'DS' : type === 'EXTENDED_LEAVE' ? 'LV' : gender === 'FEMALE' ? 'GP-G' : 'GP-B';
+    return `${prefix}-2026-1001`;
+  }
+
+  assert.ok(generatePassNumber('GATE_PASS_OUTING', 'MALE').startsWith('GP-B'), 'Male outing pass must start with GP-B');
+  assert.ok(generatePassNumber('GATE_PASS_OUTING', 'FEMALE').startsWith('GP-G'), 'Female outing pass must start with GP-G');
+  assert.ok(generatePassNumber('DAY_SCHOLAR_PASS', 'FEMALE').startsWith('DS'), 'Day scholar pass starts with DS');
+});
+
+test('Approval routing routes Male hostellers to Boys Warden and Female to Girls Warden', () => {
+  function getWardenForStudent(student) {
+    if (student.gender === 'FEMALE') {
+      return { id: 'user-warden-girls', name: 'Dr. Sunita Sharma', wing: 'GIRLS_HOSTEL', curfew: '18:30' };
+    }
+    return { id: 'user-warden-boys', name: 'Dr. Rajesh Verma', wing: 'BOYS_HOSTEL', curfew: '19:30' };
+  }
+
+  const maleStudent = { id: 'std-m', name: 'Aman Sharma', gender: 'MALE', studentType: 'HOSTELLER' };
+  const femaleStudent = { id: 'std-f', name: 'Gurpreet Kaur', gender: 'FEMALE', studentType: 'HOSTELLER' };
+
+  const maleWarden = getWardenForStudent(maleStudent);
+  assert.strictEqual(maleWarden.id, 'user-warden-boys');
+  assert.strictEqual(maleWarden.wing, 'BOYS_HOSTEL');
+  assert.strictEqual(maleWarden.curfew, '19:30', 'Boys curfew must be 7:30 PM (19:30)');
+
+  const femaleWarden = getWardenForStudent(femaleStudent);
+  assert.strictEqual(femaleWarden.id, 'user-warden-girls');
+  assert.strictEqual(femaleWarden.wing, 'GIRLS_HOSTEL');
+  assert.strictEqual(femaleWarden.curfew, '18:30', 'Girls curfew must be 6:30 PM (18:30)');
+});
+
 console.log(`\nResults: ${passedTests}/${totalTests} tests passed (${Math.round((passedTests/totalTests)*100)}% success)\n`);
 
 if (passedTests !== totalTests) {

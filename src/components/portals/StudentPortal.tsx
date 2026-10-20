@@ -164,15 +164,32 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({ student }) => {
               <div className="flex flex-wrap items-center gap-2">
                 <h1 className="text-xl sm:text-2xl font-black tracking-tight">{student.name}</h1>
                 <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
+                  student.gender === 'FEMALE' ? 'bg-pink-500 text-white' : 'bg-sky-500 text-white'
+                }`}>
+                  {student.gender === 'FEMALE' ? '♀ Female' : '♂ Male'}
+                </span>
+                <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
                   isHosteller ? 'bg-purple-500 text-white' : 'bg-blue-500 text-white'
                 }`}>
-                  {isHosteller ? 'Hosteller Resident' : 'Day Scholar'}
+                  {isHosteller 
+                    ? (student.gender === 'FEMALE' ? 'Girls Hostel Resident' : 'Boys Hostel Resident')
+                    : 'Day Scholar'}
                 </span>
               </div>
               <p className="text-xs text-brand-200 font-mono mt-1 font-semibold">{student.institutionUserId}</p>
               <p className="text-xs text-slate-300 mt-0.5">
                 {student.department} • Semester {student.semester || 6} (Section {student.section || 'A'})
               </p>
+              {isHosteller && (
+                <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-purple-200">
+                  <span className="font-medium">
+                    🏢 {student.hostelBlock || (student.gender === 'FEMALE' ? 'Girls Wing' : 'Boys Wing')} • Room {student.roomNumber || 'N/A'}
+                  </span>
+                  <span className="font-bold text-amber-300">
+                    Curfew: {student.gender === 'FEMALE' ? '6:30 PM IST (Girls Curfew)' : '7:30 PM IST (Boys Curfew)'}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -751,16 +768,22 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({ student }) => {
 
             <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
               <div className="p-3 bg-purple-50/50 rounded-xl border border-purple-100">
-                <span className="text-[10px] uppercase font-bold text-purple-700">Block & Room</span>
-                <div className="font-bold text-slate-900 text-sm mt-0.5">{student.hostelBlock} ({student.roomNumber})</div>
+                <span className="text-[10px] uppercase font-bold text-purple-700">Block & Wing</span>
+                <div className="font-bold text-slate-900 text-sm mt-0.5">
+                  {student.hostelBlock || (student.gender === 'FEMALE' ? 'Girls Hostel' : 'Boys Hostel')} ({student.roomNumber || 'Room N/A'})
+                </div>
               </div>
               <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
                 <span className="text-[10px] uppercase font-bold text-slate-400">Chief Warden</span>
-                <div className="font-bold text-slate-900 text-sm mt-0.5">{student.wardenName}</div>
+                <div className="font-bold text-slate-900 text-sm mt-0.5">
+                  {student.wardenName || (student.gender === 'FEMALE' ? 'Dr. Sunita Sharma (Girls Warden)' : 'Dr. Rajesh Verma (Boys Warden)')}
+                </div>
               </div>
               <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
                 <span className="text-[10px] uppercase font-bold text-slate-400">Evening Curfew</span>
-                <div className="font-bold text-rose-700 text-sm mt-0.5">Strictly 7:30 PM IST</div>
+                <div className="font-bold text-rose-700 text-sm mt-0.5">
+                  {student.gender === 'FEMALE' ? 'Strictly 6:30 PM IST (Girls Curfew)' : 'Strictly 7:30 PM IST (Boys Curfew)'}
+                </div>
               </div>
             </div>
 
@@ -847,6 +870,19 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({ student }) => {
                   )}
                 </select>
               </div>
+
+              {isHosteller && (
+                <div className={`p-3 rounded-xl border text-[11px] leading-relaxed ${
+                  student.gender === 'FEMALE' ? 'bg-pink-50 border-pink-200 text-pink-950' : 'bg-blue-50 border-blue-200 text-blue-950'
+                }`}>
+                  <div className="font-bold flex items-center gap-1.5 mb-1">
+                    <ShieldCheck className="w-4 h-4 text-brand-600" />
+                    <span>{student.gender === 'FEMALE' ? 'Girls Hostel Wing Outing Rules' : 'Boys Hostel Wing Outing Rules'}</span>
+                  </div>
+                  <div>• <strong>Mandatory Curfew:</strong> Return to hostel before <strong>{student.gender === 'FEMALE' ? '6:30 PM IST (Girls Curfew)' : '7:30 PM IST (Boys Curfew)'}</strong>.</div>
+                  <div>• <strong>Assigned Warden:</strong> Approval routed to {student.wardenName || (student.gender === 'FEMALE' ? 'Dr. Sunita Sharma (Girls Warden)' : 'Dr. Rajesh Verma (Boys Warden)')}.</div>
+                </div>
+              )}
 
               <div>
                 <label className="block text-slate-700 font-semibold mb-1">Destination Address / City *</label>
