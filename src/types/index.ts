@@ -43,10 +43,25 @@ export interface User {
   classInchargeName?: string;
   guardianName?: string;
   guardianPhone?: string;
+  campus?: string;       // e.g. 'Shahpur Campus'
   gateLocation?: string; // For Gatekeeper & Security Guards
   shift?: string;        // Morning, Evening, Night
   active: boolean;
   createdAt: string;
+}
+
+export type CampusStatus = 'ACTIVE' | 'IN_PROGRESS';
+
+export interface CampusInfo {
+  id: string;            // 'SHAHPUR' | 'MAQSUDAN' | 'LUDHIANA'
+  code: string;
+  name: string;
+  city: string;
+  status: CampusStatus;
+  statusLabel: string;
+  description: string;
+  address: string;
+  departmentsCount?: number;
 }
 
 export type PassType = 'GATE_PASS_OUTING' | 'DAY_SCHOLAR_PASS' | 'EXTENDED_LEAVE';

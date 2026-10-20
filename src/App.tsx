@@ -106,8 +106,11 @@ export function App() {
           <div className="font-semibold text-slate-800">
             CT Group of Institutions (CTGI) — Smart Campus Portal
           </div>
-          <div className="text-[11px] text-slate-400">
-            Approved by AICTE & PCI • Affiliated to IKG-PTU Jalandhar • Shahpur & Maqsudan Campuses
+          <div className="text-[11px] text-slate-500">
+            Engineered for all 3 Campuses • <span className="text-emerald-700 font-bold">Currently Live: Shahpur Campus</span> • Maqsudan & Ludhiana Campuses In Progress
+          </div>
+          <div className="text-[10px] text-slate-400">
+            Approved by AICTE & PCI • Affiliated to IKG-PTU Jalandhar & CT University
           </div>
         </div>
       </footer>

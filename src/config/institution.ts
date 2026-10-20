@@ -1,4 +1,4 @@
-import { InstitutionalPolicy } from '../types';
+import { InstitutionalPolicy, CampusInfo } from '../types';
 
 export const BOYS_HOSTEL_BLOCKS = [
   'Tagore Block (Boys)',
@@ -121,9 +121,49 @@ export function computeStudentBranch(department: string, semester: number, selec
   return selectedBranch || department;
 }
 
+// CT Group of Institutions — 3 Campuses Architecture
+export const CT_CAMPUSES: CampusInfo[] = [
+  {
+    id: 'SHAHPUR',
+    code: 'CTGI-SHAHPUR',
+    name: 'Shahpur Campus',
+    city: 'Jalandhar',
+    status: 'ACTIVE',
+    statusLabel: 'Available Now',
+    description: 'Flagship Mega Campus hosting 11 Departments: CTIEMT, CTIMT, CTIPS, CTIL, CTPC, CTIHS, CTIAP, CTCP, CTIHpM, MK College & CCPC.',
+    address: 'Urban Estate Phase II, Pratappura Road, Shahpur, Jalandhar, Punjab 144020',
+    departmentsCount: 11
+  },
+  {
+    id: 'MAQSUDAN',
+    code: 'CTGI-MAQSUDAN',
+    name: 'Maqsudan Campus',
+    city: 'Jalandhar',
+    status: 'IN_PROGRESS',
+    statusLabel: 'In Progress',
+    description: 'North Campus educational complex. Digital infrastructure and student database onboarding in progress.',
+    address: 'Greater Kailash, G.T. Road, Maqsudan, Jalandhar, Punjab 144008',
+    departmentsCount: 0
+  },
+  {
+    id: 'LUDHIANA',
+    code: 'CT-LUDHIANA',
+    name: 'Ludhiana Campus (CT University)',
+    city: 'Ludhiana',
+    status: 'IN_PROGRESS',
+    statusLabel: 'In Progress',
+    description: 'CT University and South Campus. Multi-campus synchronization and unified ERP integration in progress.',
+    address: 'Ferozepur Road, Sidhwan Bet, Ludhiana, Punjab 142024',
+    departmentsCount: 0
+  }
+];
+
+export const ACTIVE_CAMPUS_ID = 'SHAHPUR';
+export const ACTIVE_CAMPUS_NAME = 'Shahpur Campus, Jalandhar';
+
 export const DEFAULT_POLICY: InstitutionalPolicy = {
   collegeName: "CT Group of Institutions (CTGI)",
-  campusName: "Shahpur & Maqsudan Campuses, Jalandhar",
+  campusName: "Shahpur Campus (Active) • Maqsudan & Ludhiana (In Progress)",
   timeZone: "Asia/Kolkata",
   workingHoursStart: "09:00",
   workingHoursEnd: "16:30",

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { AuthService } from '../../services/auth';
+import { CT_CAMPUSES } from '../../config/institution';
 import { 
   GraduationCap, 
   Lock, 
@@ -9,7 +10,9 @@ import {
   Sparkles, 
   AlertCircle,
   Building2,
-  Users
+  Users,
+  CheckCircle2,
+  Clock3
 } from 'lucide-react';
 
 interface AuthPageProps {
@@ -19,12 +22,20 @@ interface AuthPageProps {
 export const AuthPage: React.FC<AuthPageProps> = ({ onSuccess }) => {
   const [signInId, setSignInId] = useState('');
   const [password, setPassword] = useState('');
+  const [selectedCampus, setSelectedCampus] = useState<'SHAHPUR' | 'MAQSUDAN' | 'LUDHIANA'>('SHAHPUR');
+  const [campusNotice, setCampusNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    if (selectedCampus !== 'SHAHPUR') {
+      setError(`Notice: ${selectedCampus === 'MAQSUDAN' ? 'Maqsudan Campus' : 'Ludhiana Campus'} integration is currently IN PROGRESS. Please select Shahpur Campus to sign in.`);
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -39,6 +50,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onSuccess }) => {
 
   const handleAdminQuickLogin = async () => {
     setError(null);
+    setSelectedCampus('SHAHPUR');
     setLoading(true);
     try {
       await AuthService.loginWithEmail('admin@ctgroup.in', 'admin123');
@@ -54,7 +66,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onSuccess }) => {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-navy-950 to-brand-950 flex flex-col justify-center py-10 px-4 sm:px-6 lg:px-8">
       
       {/* Brand Header */}
-      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center mb-6">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center mb-4">
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-brand-600 text-white shadow-xl shadow-brand-500/20 mb-3 ring-4 ring-white/10">
           <GraduationCap className="w-9 h-9" />
         </div>
@@ -65,8 +77,115 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onSuccess }) => {
           CT Group of Institutions (CTGI)
         </p>
         <p className="text-[11px] text-slate-400 mt-0.5">
-          Official Institutional Management & Gateway
+          Unified Multi-Campus Digital Gateway
         </p>
+      </div>
+
+      {/* 3 Campuses Status & Selection Bar */}
+      <div className="sm:mx-auto sm:w-full sm:max-w-md mb-4">
+        <div className="bg-slate-800/90 backdrop-blur-md rounded-2xl p-3 border border-slate-700/80 shadow-xl space-y-2.5">
+          <div className="flex items-center justify-between text-[11px]">
+            <span className="text-slate-300 font-bold flex items-center gap-1.5">
+              <Building2 className="w-3.5 h-3.5 text-brand-400" />
+              CT Group Campuses (3 Campuses Architecture)
+            </span>
+            <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-bold border border-emerald-500/30">
+              Shahpur Live
+            </span>
+          </div>
+
+          <div className="grid grid-cols-3 gap-2">
+            {/* Shahpur Campus (Active) */}
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedCampus('SHAHPUR');
+                setCampusNotice(null);
+                setError(null);
+              }}
+              className={`p-2.5 rounded-xl text-left transition-all ${
+                selectedCampus === 'SHAHPUR'
+                  ? 'bg-brand-600 text-white shadow-md shadow-brand-600/30 ring-2 ring-brand-400'
+                  : 'bg-slate-700/60 hover:bg-slate-700 text-slate-300'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <span className="font-extrabold text-[11px] truncate">Shahpur</span>
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              </div>
+              <div className="text-[9.5px] font-bold mt-1 text-emerald-300 flex items-center gap-1">
+                <CheckCircle2 className="w-3 h-3" />
+                <span>Available Now</span>
+              </div>
+            </button>
+
+            {/* Maqsudan Campus (In Progress) */}
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedCampus('MAQSUDAN');
+                setCampusNotice('Maqsudan Campus digital onboarding is currently IN PROGRESS. The system is live exclusively for Shahpur Campus right now.');
+              }}
+              className={`p-2.5 rounded-xl text-left transition-all ${
+                selectedCampus === 'MAQSUDAN'
+                  ? 'bg-amber-600 text-white shadow-md ring-2 ring-amber-400'
+                  : 'bg-slate-700/60 hover:bg-slate-700 text-slate-300'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <span className="font-extrabold text-[11px] truncate">Maqsudan</span>
+                <span className="w-2 h-2 rounded-full bg-amber-400" />
+              </div>
+              <div className="text-[9.5px] font-bold mt-1 text-amber-300 flex items-center gap-1">
+                <Clock3 className="w-3 h-3" />
+                <span>In Progress</span>
+              </div>
+            </button>
+
+            {/* Ludhiana Campus (In Progress) */}
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedCampus('LUDHIANA');
+                setCampusNotice('Ludhiana Campus (CT University) multi-campus integration is currently IN PROGRESS. The system is live exclusively for Shahpur Campus right now.');
+              }}
+              className={`p-2.5 rounded-xl text-left transition-all ${
+                selectedCampus === 'LUDHIANA'
+                  ? 'bg-purple-600 text-white shadow-md ring-2 ring-purple-400'
+                  : 'bg-slate-700/60 hover:bg-slate-700 text-slate-300'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <span className="font-extrabold text-[11px] truncate">Ludhiana</span>
+                <span className="w-2 h-2 rounded-full bg-purple-400" />
+              </div>
+              <div className="text-[9.5px] font-bold mt-1 text-purple-300 flex items-center gap-1">
+                <Clock3 className="w-3 h-3" />
+                <span>In Progress</span>
+              </div>
+            </button>
+          </div>
+
+          {campusNotice && (
+            <div className="p-2.5 rounded-xl bg-amber-950/70 border border-amber-500/40 text-amber-200 text-[11px] flex items-start gap-2 animate-in fade-in">
+              <AlertCircle className="w-4 h-4 shrink-0 text-amber-400 mt-0.5" />
+              <div className="flex-1 leading-snug">
+                <span>{campusNotice}</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedCampus('SHAHPUR');
+                    setCampusNotice(null);
+                    setError(null);
+                  }}
+                  className="block font-bold text-amber-300 hover:text-white underline mt-1"
+                >
+                  ✓ Switch to Shahpur Campus (Available Now)
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Main Login Card */}
@@ -75,9 +194,15 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onSuccess }) => {
           
           <div className="p-6 sm:p-8 space-y-5">
             <div>
-              <h2 className="text-lg font-black text-slate-900 tracking-tight">
-                Institutional Sign In
-              </h2>
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-black text-slate-900 tracking-tight">
+                  Institutional Sign In
+                </h2>
+                <span className="text-[10.5px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
+                  Shahpur Campus
+                </span>
+              </div>
               <p className="text-xs text-slate-500 mt-0.5">
                 Enter your department-issued credentials to access your portal.
               </p>

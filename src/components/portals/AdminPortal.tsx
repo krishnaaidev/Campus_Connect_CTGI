@@ -3,6 +3,8 @@ import { User, UserRole, Gender, InstitutionalPolicy, AuditLog } from '../../typ
 import { StorageService } from '../../services/storage';
 import { 
   CT_DEPARTMENTS, 
+  CT_CAMPUSES,
+  ACTIVE_CAMPUS_NAME,
   CTIEMT_BTECH_BRANCHES, 
   CTIEMT_FIRST_YEAR_BRANCH, 
   BOYS_HOSTEL_BLOCKS, 
@@ -51,7 +53,7 @@ type ModalType =
   | 'SECURITY_GUARD';     // 5. Security Guards
 
 export const AdminPortal: React.FC<AdminPortalProps> = ({ admin }) => {
-  const [activeTab, setActiveTab] = useState<'users' | 'departments' | 'policy' | 'audit'>('users');
+  const [activeTab, setActiveTab] = useState<'users' | 'departments' | 'campuses' | 'policy' | 'audit'>('users');
   const [selectedDeptFilter, setSelectedDeptFilter] = useState<string>('ALL');
   const [selectedDeptTab, setSelectedDeptTab] = useState<string>('CTIEMT');
   const [users, setUsers] = useState<User[]>([]);
@@ -172,6 +174,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ admin }) => {
       wardenName: isHosteller ? (stdGender === 'FEMALE' ? 'Dr. Sunita Sharma' : 'Dr. Rajesh Verma') : undefined,
       guardianName: stdGuardianName,
       guardianPhone: stdGuardianPhone,
+      campus: 'Shahpur Campus',
       active: true,
       createdAt: new Date().toISOString()
     };
@@ -207,6 +210,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ admin }) => {
       hostelBlock: isWarden ? (wsWing === 'BOYS_HOSTEL' ? 'Tagore & Gandhi Blocks' : 'Sarojini & Kalpana Blocks') : undefined,
       gateLocation: !isWarden ? wsGate : undefined,
       shift: !isWarden ? wsShift : undefined,
+      campus: 'Shahpur Campus',
       active: true,
       createdAt: new Date().toISOString()
     };
@@ -240,6 +244,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ admin }) => {
       branch: acadDept === 'CTIEMT' ? acadBranch : undefined,
       semester: acadRole === 'CLASS_INCHARGE' ? Number(acadSemester) : undefined,
       section: acadRole === 'CLASS_INCHARGE' ? acadSection : undefined,
+      campus: 'Shahpur Campus',
       active: true,
       createdAt: new Date().toISOString()
     };
@@ -269,6 +274,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ admin }) => {
       role: allDeptRole,
       gender: allDeptGender,
       department: allDeptOffice,
+      campus: 'Shahpur Campus',
       active: true,
       createdAt: new Date().toISOString()
     };
@@ -300,6 +306,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ admin }) => {
       department: 'Campus Security Patrol',
       gateLocation: guardSector,
       shift: guardShift,
+      campus: 'Shahpur Campus',
       active: true,
       createdAt: new Date().toISOString()
     };
@@ -362,6 +369,37 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ admin }) => {
           <span>{successBanner}</span>
         </div>
       )}
+
+      {/* 3 Campuses Institutional Architecture Banner */}
+      <div className="bg-gradient-to-r from-blue-950 via-slate-900 to-indigo-950 text-white rounded-2xl p-4 border border-blue-800/50 shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-blue-600/30 border border-blue-400/30 flex items-center justify-center shrink-0">
+            <Building2 className="w-5 h-5 text-blue-300" />
+          </div>
+          <div>
+            <div className="font-bold flex items-center gap-2 flex-wrap">
+              <span className="text-sm">CT Group Multi-Campus System (3 Campuses)</span>
+              <span className="bg-emerald-500/20 text-emerald-300 text-[10px] font-black px-2 py-0.5 rounded-full border border-emerald-500/30 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                Shahpur Campus Live
+              </span>
+              <span className="bg-amber-500/20 text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-full border border-amber-500/30">
+                Maqsudan & Ludhiana In Progress
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-300 mt-0.5">
+              Engineered for all 3 campuses. Operations, 11 departments, hostel wings, and user provisioning are currently live for <strong>Shahpur Campus</strong>.
+            </p>
+          </div>
+        </div>
+        <button
+          onClick={() => setActiveTab('campuses')}
+          className="px-3.5 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs shrink-0 transition-colors shadow-sm flex items-center gap-1.5"
+        >
+          <span>View 3 Campuses Status</span>
+          <ChevronRight className="w-3.5 h-3.5" />
+        </button>
+      </div>
 
       {/* 5 ACCOUNT CREATION ACTION CARDS */}
       <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-2xs space-y-3">
@@ -465,6 +503,16 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ admin }) => {
         >
           <Building2 className="w-3.5 h-3.5" />
           <span>11 CT Departments & Sub-Depts</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('campuses')}
+          className={`px-4 py-2 rounded-xl transition-all whitespace-nowrap flex items-center gap-1.5 ${
+            activeTab === 'campuses' ? 'bg-slate-900 text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
+          }`}
+        >
+          <Building className="w-3.5 h-3.5 text-blue-400" />
+          <span>3 CT Campuses (Shahpur Live • 2 In Progress)</span>
         </button>
 
         <button
@@ -707,6 +755,161 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ admin }) => {
         </div>
       )}
 
+      {/* TAB: 3 CT CAMPUSES STATUS & ARCHITECTURE */}
+      {activeTab === 'campuses' && (
+        <div className="space-y-6">
+          {/* Header Banner */}
+          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-2xs space-y-2">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 flex-wrap gap-2">
+              <div>
+                <div className="flex items-center gap-2">
+                  <Building className="w-5 h-5 text-blue-600" />
+                  <h2 className="text-base font-black text-slate-900">
+                    CT Group Multi-Campus Deployment (3 Campuses Architecture)
+                  </h2>
+                </div>
+                <p className="text-xs text-slate-500 mt-1">
+                  Engineered to serve all 3 CT Group campuses. Currently active and operational for <strong>Shahpur Campus</strong>; Maqsudan and Ludhiana campuses are in progress.
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 flex items-center gap-1.5 border border-emerald-200">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  1 Live (Shahpur)
+                </span>
+                <span className="text-xs font-bold px-3 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-200">
+                  2 In Progress
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+              {CT_CAMPUSES.map((camp) => {
+                const isActive = camp.status === 'ACTIVE';
+                const campusUsersCount = users.filter(u => !u.campus || u.campus.includes(camp.name) || u.campus.includes('Shahpur')).length;
+
+                return (
+                  <div
+                    key={camp.id}
+                    className={`rounded-2xl border p-5 flex flex-col justify-between transition-all ${
+                      isActive
+                        ? 'bg-gradient-to-b from-white to-emerald-50/40 border-emerald-300 shadow-md ring-1 ring-emerald-400/30'
+                        : 'bg-gradient-to-b from-white to-slate-50 border-slate-200 opacity-90'
+                    }`}
+                  >
+                    <div className="space-y-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <span className="text-[10px] font-mono font-bold text-slate-400 block uppercase">
+                            {camp.code}
+                          </span>
+                          <h3 className="text-base font-black text-slate-900 mt-0.5">
+                            {camp.name}
+                          </h3>
+                          <span className="text-xs text-slate-500 font-medium">
+                            {camp.city}, Punjab
+                          </span>
+                        </div>
+                        <span
+                          className={`text-[10.5px] font-black px-2.5 py-1 rounded-full flex items-center gap-1 ${
+                            isActive
+                              ? 'bg-emerald-600 text-white shadow-xs'
+                              : 'bg-amber-100 text-amber-800 border border-amber-200'
+                          }`}
+                        >
+                          {isActive && <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />}
+                          {camp.statusLabel}
+                        </span>
+                      </div>
+
+                      <p className="text-xs text-slate-600 leading-relaxed">
+                        {camp.description}
+                      </p>
+
+                      <div className="p-3 rounded-xl bg-white/80 border border-slate-200/80 text-[11px] space-y-1.5">
+                        <div className="flex items-center justify-between text-slate-600">
+                          <span className="font-semibold">System Operational Status:</span>
+                          <span className={`font-black ${isActive ? 'text-emerald-700' : 'text-amber-700'}`}>
+                            {isActive ? '100% Live & Available' : 'In Progress (Rollout Soon)'}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between text-slate-600">
+                          <span className="font-semibold">Departments Supported:</span>
+                          <span className="font-bold text-slate-900">
+                            {isActive ? '11 Institutes Online' : 'Mapping in Progress'}
+                          </span>
+                        </div>
+                        {isActive && (
+                          <div className="flex items-center justify-between text-slate-600">
+                            <span className="font-semibold">Active Enrolled Users:</span>
+                            <span className="font-bold text-brand-700">
+                              {campusUsersCount} Accounts
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-500">
+                      <div className="font-semibold text-slate-700 mb-0.5">Location Address:</div>
+                      <div className="text-[10.5px] text-slate-500 leading-snug">
+                        {camp.address}
+                      </div>
+                      
+                      {isActive ? (
+                        <div className="mt-3 flex gap-2">
+                          <button
+                            onClick={() => setActiveTab('departments')}
+                            className="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs text-center transition-colors shadow-2xs"
+                          >
+                            Explore 11 Departments
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="mt-3 py-2 bg-slate-100 text-slate-500 font-bold rounded-xl text-[11px] text-center border border-slate-200">
+                          ⏳ Integration In Progress
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Institutional Multi-Campus Deployment Specs */}
+          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-2xs space-y-4">
+            <h3 className="font-black text-slate-900 text-sm flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-brand-600" />
+              <span>Multi-Campus Architecture & Deployment Policy</span>
+            </h3>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+                <div className="font-bold text-slate-900">1. Shahpur Campus (Live)</div>
+                <p className="text-[11px] text-slate-500 leading-snug">
+                  Full production gateway handling gate passes, day scholar cutoffs (2:00 PM), boys/girls curfew segregation, fee receipts, and 11 institutional departments.
+                </p>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-amber-50/60 border border-amber-200/80 space-y-1">
+                <div className="font-bold text-amber-950">2. Maqsudan Campus (Phase 2)</div>
+                <p className="text-[11px] text-amber-800 leading-snug">
+                  Academic department mapping, faculty onboarding, and local gate checkpoint camera hardware synchronization currently in progress.
+                </p>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-purple-50/60 border border-purple-200/80 space-y-1">
+                <div className="font-bold text-purple-950">3. Ludhiana Campus (Phase 3)</div>
+                <p className="text-[11px] text-purple-800 leading-snug">
+                  CT University centralized directory integration, cross-campus single sign-on (SSO), and student mobility passes under active system preparation.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* TAB 3: POLICIES TAB */}
       {activeTab === 'policy' && (
         <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-2xs space-y-6">
@@ -818,6 +1021,23 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ admin }) => {
             </div>
 
             <form onSubmit={handleCreateStudent} className="space-y-3.5 text-xs">
+              {/* Campus Scope */}
+              <div>
+                <label className="block text-slate-700 font-bold mb-1">Campus</label>
+                <div className="flex items-center justify-between p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>Shahpur Campus, Jalandhar</span>
+                  </div>
+                  <span className="text-[10px] bg-emerald-100 text-emerald-800 font-extrabold px-2 py-0.5 rounded-full">
+                    Available Now
+                  </span>
+                </div>
+                <p className="text-[10.5px] text-slate-400 mt-1">
+                  Maqsudan & Ludhiana campuses in progress. Student will be enrolled in Shahpur Campus.
+                </p>
+              </div>
+
               {/* Department Selection (11 CT Depts) */}
               <div>
                 <label className="block text-slate-700 font-bold mb-1">Enrolled Department (11 CT Institutes) *</label>
@@ -1035,6 +1255,20 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ admin }) => {
             </div>
 
             <form onSubmit={handleCreateWardenSecurity} className="space-y-3.5 text-xs">
+              {/* Campus Scope */}
+              <div>
+                <label className="block text-slate-700 font-bold mb-1">Campus</label>
+                <div className="flex items-center justify-between p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>Shahpur Campus, Jalandhar</span>
+                  </div>
+                  <span className="text-[10px] bg-emerald-100 text-emerald-800 font-extrabold px-2 py-0.5 rounded-full">
+                    Available Now
+                  </span>
+                </div>
+              </div>
+
               <div>
                 <label className="block text-slate-700 font-bold mb-1">Designation / Role *</label>
                 <div className="grid grid-cols-2 gap-2">
@@ -1163,6 +1397,20 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ admin }) => {
             </div>
 
             <form onSubmit={handleCreateAcademic} className="space-y-3.5 text-xs">
+              {/* Campus Scope */}
+              <div>
+                <label className="block text-slate-700 font-bold mb-1">Campus</label>
+                <div className="flex items-center justify-between p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>Shahpur Campus, Jalandhar</span>
+                  </div>
+                  <span className="text-[10px] bg-emerald-100 text-emerald-800 font-extrabold px-2 py-0.5 rounded-full">
+                    Available Now
+                  </span>
+                </div>
+              </div>
+
               <div>
                 <label className="block text-slate-700 font-bold mb-1">Academic Role *</label>
                 <select
@@ -1304,6 +1552,20 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ admin }) => {
             </div>
 
             <form onSubmit={handleCreateAllDeptStaff} className="space-y-3.5 text-xs">
+              {/* Campus Scope */}
+              <div>
+                <label className="block text-slate-700 font-bold mb-1">Campus</label>
+                <div className="flex items-center justify-between p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>Shahpur Campus, Jalandhar</span>
+                  </div>
+                  <span className="text-[10px] bg-emerald-100 text-emerald-800 font-extrabold px-2 py-0.5 rounded-full">
+                    Available Now
+                  </span>
+                </div>
+              </div>
+
               <div>
                 <label className="block text-slate-700 font-bold mb-1">Institutional Category / Role *</label>
                 <select
@@ -1390,6 +1652,20 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ admin }) => {
             </div>
 
             <form onSubmit={handleCreateSecurityGuard} className="space-y-3.5 text-xs">
+              {/* Campus Scope */}
+              <div>
+                <label className="block text-slate-700 font-bold mb-1">Campus</label>
+                <div className="flex items-center justify-between p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>Shahpur Campus, Jalandhar</span>
+                  </div>
+                  <span className="text-[10px] bg-emerald-100 text-emerald-800 font-extrabold px-2 py-0.5 rounded-full">
+                    Available Now
+                  </span>
+                </div>
+              </div>
+
               <div>
                 <label className="block text-slate-700 font-semibold mb-1">Full Guard Name *</label>
                 <input

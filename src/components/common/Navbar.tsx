@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { User } from '../../types';
 import { AuthService } from '../../services/auth';
 import { StorageService } from '../../services/storage';
-import { formatKolkataTime } from '../../config/institution';
+import { formatKolkataTime, CT_CAMPUSES } from '../../config/institution';
 import { 
   Bell, 
   Clock, 
@@ -13,7 +13,9 @@ import {
   CheckCircle,
   AlertTriangle,
   FileText,
-  UserCheck
+  UserCheck,
+  Building2,
+  ChevronDown
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -25,6 +27,7 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({ user, onOpenMobileMenu, onOpenAuthModal }) => {
   const [currentTime, setCurrentTime] = useState<string>('');
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showCampusMenu, setShowCampusMenu] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
 
   useEffect(() => {
@@ -90,6 +93,70 @@ export const Navbar: React.FC<NavbarProps> = ({ user, onOpenMobileMenu, onOpenAu
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Campus Selector & Multi-Campus Status */}
+          <div className="relative">
+            <button
+              onClick={() => setShowCampusMenu(!showCampusMenu)}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300/80 rounded-full text-xs font-bold transition-all shadow-2xs"
+              title="CT Group Multi-Campus Status"
+            >
+              <Building2 className="w-3.5 h-3.5 text-emerald-600" />
+              <span className="hidden sm:inline">Shahpur Campus</span>
+              <span className="inline sm:hidden">Shahpur</span>
+              <span className="text-[10px] bg-emerald-600 text-white px-1.5 py-0.2 rounded font-extrabold flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                Live
+              </span>
+              <ChevronDown className="w-3 h-3 text-emerald-700 ml-0.5" />
+            </button>
+
+            {/* Campuses Dropdown Menu */}
+            {showCampusMenu && (
+              <div className="absolute left-0 sm:left-auto sm:right-0 mt-2 w-72 sm:w-80 bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 p-3 animate-in fade-in slide-in-from-top-2">
+                <div className="pb-2 mb-2 border-b border-slate-100 flex items-center justify-between">
+                  <span className="font-bold text-slate-900 text-xs flex items-center gap-1.5">
+                    <Building2 className="w-3.5 h-3.5 text-brand-600" />
+                    CT Group Campuses (3 Campuses)
+                  </span>
+                  <span className="text-[10px] font-bold text-slate-400">1 Live • 2 In Progress</span>
+                </div>
+
+                <div className="space-y-1.5">
+                  {CT_CAMPUSES.map((camp) => (
+                    <div
+                      key={camp.id}
+                      className={`p-2.5 rounded-xl border text-left transition-all ${
+                        camp.status === 'ACTIVE'
+                          ? 'bg-emerald-50/70 border-emerald-200 text-emerald-950'
+                          : 'bg-slate-50 border-slate-200/80 text-slate-600'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-xs">{camp.name}</span>
+                        <span
+                          className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${
+                            camp.status === 'ACTIVE'
+                              ? 'bg-emerald-600 text-white shadow-2xs'
+                              : 'bg-amber-100 text-amber-800 border border-amber-200'
+                          }`}
+                        >
+                          {camp.statusLabel}
+                        </span>
+                      </div>
+                      <p className="text-[10.5px] mt-1 text-slate-500 leading-snug">
+                        {camp.description}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-2.5 pt-2 border-t border-slate-100 text-[10px] text-slate-400 text-center font-medium">
+                  Currently serving Shahpur Campus • Other campuses rolling out soon
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Live Asia/Kolkata Clock */}

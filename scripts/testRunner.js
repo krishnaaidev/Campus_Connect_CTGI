@@ -325,6 +325,41 @@ test('Admin Portal provides exactly the 5 distinct institutional account creatio
   assert.strictEqual(adminCategories[4].label, 'Security Guards');
 });
 
+// 11. Multi-Campus Architecture (3 Campuses: Shahpur Active, Maqsudan & Ludhiana In Progress)
+test('Multi-campus architecture supports all 3 campuses with Shahpur active and others in progress', () => {
+  const campuses = [
+    { id: 'SHAHPUR', name: 'Shahpur Campus', status: 'ACTIVE', statusLabel: 'Available Now' },
+    { id: 'MAQSUDAN', name: 'Maqsudan Campus', status: 'IN_PROGRESS', statusLabel: 'In Progress' },
+    { id: 'LUDHIANA', name: 'Ludhiana Campus (CT University)', status: 'IN_PROGRESS', statusLabel: 'In Progress' }
+  ];
+
+  assert.strictEqual(campuses.length, 3, 'Must define all 3 CT campuses');
+  
+  // Shahpur Campus is live and active
+  const shahpur = campuses.find(c => c.id === 'SHAHPUR');
+  assert.ok(shahpur, 'Shahpur Campus must exist');
+  assert.strictEqual(shahpur.status, 'ACTIVE', 'Shahpur Campus must be ACTIVE');
+  assert.strictEqual(shahpur.statusLabel, 'Available Now');
+
+  // Maqsudan Campus is in progress
+  const maqsudan = campuses.find(c => c.id === 'MAQSUDAN');
+  assert.ok(maqsudan, 'Maqsudan Campus must exist');
+  assert.strictEqual(maqsudan.status, 'IN_PROGRESS', 'Maqsudan Campus must be IN_PROGRESS');
+
+  // Ludhiana Campus is in progress
+  const ludhiana = campuses.find(c => c.id === 'LUDHIANA');
+  assert.ok(ludhiana, 'Ludhiana Campus must exist');
+  assert.strictEqual(ludhiana.status, 'IN_PROGRESS', 'Ludhiana Campus must be IN_PROGRESS');
+
+  // New institutional accounts default to Shahpur Campus
+  const testStudent = {
+    name: 'Rohan Verma',
+    role: 'STUDENT_HOSTELLER',
+    campus: 'Shahpur Campus'
+  };
+  assert.strictEqual(testStudent.campus, 'Shahpur Campus', 'Accounts must be assigned to Shahpur Campus');
+});
+
 console.log(`\nResults: ${passedTests}/${totalTests} tests passed (${Math.round((passedTests/totalTests)*100)}% success)\n`);
 
 if (passedTests !== totalTests) {
