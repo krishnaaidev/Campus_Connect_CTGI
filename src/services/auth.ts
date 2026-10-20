@@ -109,30 +109,38 @@ export class AuthService {
     if (query === 'admin' || query === 'admin@ctgroup.in' || query === 'ctgi/it/admin/001') {
       const admin = StorageService.getUsers().find(u => u.role === 'ADMINISTRATOR') || INITIAL_USERS[0];
       if (admin) {
+        if (pass !== 'admin123' && admin.password && admin.password !== pass) {
+          throw new Error('Incorrect password for System Administrator.');
+        }
         this.setCurrentUser(admin);
         return admin;
       }
     }
 
-    // 2. Check if user exists in institutional store (e.g. newly registered students)
+    // 2. Check if user exists in institutional store (e.g. newly registered students or faculty)
     const localUser = StorageService.getUsers().find(
       u => u.email.toLowerCase() === query || u.institutionUserId.toLowerCase() === query
     );
 
-    if (auth && localUser?.email) {
-      try {
-        await signInWithEmailAndPassword(auth, localUser.email, pass);
-      } catch (firebaseErr: any) {
-        console.warn('Firebase Auth note:', firebaseErr.message);
-      }
-    }
-
     if (localUser) {
+      // Validate password if configured on user record
+      if (localUser.password && localUser.password !== pass) {
+        throw new Error('Incorrect password entered. Please check your credentials.');
+      }
+
+      if (auth && localUser.email) {
+        try {
+          await signInWithEmailAndPassword(auth, localUser.email, pass);
+        } catch (firebaseErr: any) {
+          console.warn('Firebase Auth note:', firebaseErr.message);
+        }
+      }
+
       this.setCurrentUser(localUser);
       return localUser;
     }
 
-    throw new Error('Account not found. For System Admin login use: admin / admin123, or register a new student account.');
+    throw new Error('Account not found with this ID or Email. Please check your credentials or contact your department incharge.');
   }
 
   /**

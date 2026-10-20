@@ -42,6 +42,7 @@ export const INITIAL_USERS: User[] = [
     avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
     department: 'Campus IT & Systems Administration',
     campus: 'Shahpur Campus',
+    password: 'admin123',
     active: true,
     createdAt: '2026-01-01T09:00:00Z'
   }

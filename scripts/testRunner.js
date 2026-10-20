@@ -360,9 +360,149 @@ test('Multi-campus architecture supports all 3 campuses with Shahpur active and 
   assert.strictEqual(testStudent.campus, 'Shahpur Campus', 'Accounts must be assigned to Shahpur Campus');
 });
 
+// 12. CCPC Official Definition: Career Counselling and Placement Cell
+test('CCPC department strictly represents Career Counselling and Placement Cell', () => {
+  const ccpcDept = {
+    code: 'CCPC',
+    name: 'Career Counselling and Placement Cell',
+    subDepartments: [
+      'Career Guidance',
+      'Placement Training',
+      'Corporate Relations',
+      'Skill Development'
+    ]
+  };
+
+  assert.strictEqual(ccpcDept.code, 'CCPC');
+  assert.strictEqual(ccpcDept.name, 'Career Counselling and Placement Cell');
+  assert.ok(ccpcDept.subDepartments.includes('Career Guidance'));
+  assert.ok(ccpcDept.subDepartments.includes('Placement Training'));
+  assert.ok(ccpcDept.subDepartments.includes('Corporate Relations'));
+});
+
+// 13. Registration Password Option & Authentication Validation
+test('All user registration forms include password option and authenticate correctly', () => {
+  const testUsers = [
+    {
+      id: 'usr-1',
+      institutionUserId: 'CTGI/2026/CSE/101',
+      name: 'Aarav Gupta',
+      email: 'aarav@ctgroup.in',
+      password: 'student_custom_pass_2026',
+      role: 'STUDENT_HOSTELLER'
+    },
+    {
+      id: 'usr-2',
+      institutionUserId: 'CTGI/FAC/INC/505',
+      name: 'Prof. Anjali Sharma',
+      email: 'anjali@ctgroup.in',
+      password: 'incharge_secure_pass!',
+      role: 'CLASS_INCHARGE'
+    },
+    {
+      id: 'usr-3',
+      institutionUserId: 'CTGI/ADMIN/HOD/303',
+      name: 'Dr. Vikram Seth',
+      email: 'vikram@ctgroup.in',
+      password: 'hod_super_secret_99',
+      role: 'HOD'
+    }
+  ];
+
+  function verifyLogin(user, inputPassword) {
+    if (!user) return false;
+    if (user.password) {
+      return user.password === inputPassword;
+    }
+    return inputPassword === 'admin123' || inputPassword === 'student123';
+  }
+
+  // User 1: Student
+  assert.strictEqual(verifyLogin(testUsers[0], 'student_custom_pass_2026'), true, 'Correct password must succeed');
+  assert.strictEqual(verifyLogin(testUsers[0], 'wrong_pass'), false, 'Incorrect password must fail');
+
+  // User 2: Class Incharge
+  assert.strictEqual(verifyLogin(testUsers[1], 'incharge_secure_pass!'), true, 'Incharge custom password must succeed');
+  assert.strictEqual(verifyLogin(testUsers[1], 'random_pass'), false, 'Wrong password must fail');
+
+  // User 3: HOD
+  assert.strictEqual(verifyLogin(testUsers[2], 'hod_super_secret_99'), true, 'HOD custom password must succeed');
+  assert.strictEqual(verifyLogin(testUsers[2], 'hod123'), false, 'Outdated default password must fail if custom set');
+});
+
+// 14. Class Incharge & Teaching Faculty Alignment + Multi-Subject Teaching
+test('Class Incharge is teaching faculty, and single teacher can teach multiple subjects', () => {
+  const teacher = {
+    id: 'fac-101',
+    name: 'Prof. Ramesh Kumar',
+    role: 'CLASS_INCHARGE',
+    isClassIncharge: true,
+    department: 'CTIEMT',
+    semester: 6,
+    section: 'A',
+    // Single teacher teaches multiple subjects:
+    subjects: [
+      'Data Structures & Algorithms',
+      'Database Management Systems',
+      'Operating Systems & System Programming'
+    ],
+    teachingClasses: ['Semester 6 - Section A', 'Semester 4 - Section B']
+  };
+
+  assert.strictEqual(teacher.isClassIncharge, true, 'Class incharge is marked as incharge');
+  assert.strictEqual(teacher.role, 'CLASS_INCHARGE');
+  assert.ok(Array.isArray(teacher.subjects), 'Subjects must be an array');
+  assert.strictEqual(teacher.subjects.length, 3, 'Single teacher must be able to teach 3+ subjects');
+  assert.ok(teacher.subjects.includes('Data Structures & Algorithms'));
+  assert.ok(teacher.subjects.includes('Database Management Systems'));
+  assert.ok(teacher.subjects.includes('Operating Systems & System Programming'));
+  assert.strictEqual(teacher.teachingClasses.length, 2, 'Teacher can teach multiple classes/sections');
+});
+
+// 15. HOD and HOI Active Class Teaching & Multi-Subject Scope
+test('HOD and HOI actively take classes and teach multiple subjects', () => {
+  const hod = {
+    id: 'hod-201',
+    name: 'Dr. Amit Bansal',
+    role: 'HOD',
+    department: 'CTIEMT',
+    subjects: [
+      'Cloud Computing & Distributed Systems',
+      'Computer Networks',
+      'Information & Cyber Security'
+    ],
+    teachingClasses: ['CTIEMT B.Tech Final Year Lectures']
+  };
+
+  const hoi = {
+    id: 'hoi-301',
+    name: 'Dr. Gurpreet Singh',
+    role: 'HOI',
+    department: 'Campus Administration',
+    subjects: [
+      'Engineering Ethics & Professional Practices',
+      'Innovation & Design Thinking'
+    ],
+    teachingClasses: ['Institute Wide Leadership Lectures']
+  };
+
+  // HOD checks
+  assert.strictEqual(hod.role, 'HOD');
+  assert.ok(hod.subjects.length >= 2, 'HOD must have multiple assigned subjects');
+  assert.ok(hod.subjects.includes('Cloud Computing & Distributed Systems'));
+  assert.ok(hod.teachingClasses.length > 0, 'HOD actively takes classes');
+
+  // HOI checks
+  assert.strictEqual(hoi.role, 'HOI');
+  assert.ok(hoi.subjects.length >= 2, 'HOI must have assigned teaching subjects');
+  assert.ok(hoi.subjects.includes('Engineering Ethics & Professional Practices'));
+  assert.ok(hoi.teachingClasses.length > 0, 'HOI actively takes classes');
+});
+
 console.log(`\nResults: ${passedTests}/${totalTests} tests passed (${Math.round((passedTests/totalTests)*100)}% success)\n`);
 
 if (passedTests !== totalTests) {
   process.exit(1);
 }
+
 

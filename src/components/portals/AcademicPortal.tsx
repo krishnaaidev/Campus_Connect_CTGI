@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { User, GatePassRequest, Notice, Gender, UserRole } from '../../types';
 import { StorageService, SEED_ATTENDANCE } from '../../services/storage';
 import { ApprovalService } from '../../services/approvals';
-import { BOYS_HOSTEL_BLOCKS, GIRLS_HOSTEL_BLOCKS } from '../../config/institution';
+import { BOYS_HOSTEL_BLOCKS, GIRLS_HOSTEL_BLOCKS, COMMON_TEACHING_SUBJECTS } from '../../config/institution';
 import { 
   GraduationCap, 
   CheckCircle2, 
@@ -19,7 +19,11 @@ import {
   Award,
   ChevronRight,
   Phone,
-  Mail
+  Mail,
+  Key,
+  Tag,
+  Plus,
+  X
 } from 'lucide-react';
 
 interface AcademicPortalProps {
@@ -42,6 +46,7 @@ export const AcademicPortal: React.FC<AcademicPortalProps> = ({ faculty }) => {
   const [showStudentModal, setShowStudentModal] = useState(false);
   const [stdName, setStdName] = useState('');
   const [stdEmail, setStdEmail] = useState('');
+  const [stdPassword, setStdPassword] = useState('student123');
   const [stdPhone, setStdPhone] = useState('+91 98765 00000');
   const [stdGender, setStdGender] = useState<Gender>('MALE');
   const [stdType, setStdType] = useState<'HOSTELLER' | 'DAY_SCHOLAR'>('HOSTELLER');
@@ -56,6 +61,12 @@ export const AcademicPortal: React.FC<AcademicPortalProps> = ({ faculty }) => {
   const [showInchargeModal, setShowInchargeModal] = useState(false);
   const [incName, setIncName] = useState('');
   const [incEmail, setIncEmail] = useState('');
+  const [incPassword, setIncPassword] = useState('faculty123');
+  const [incSubjects, setIncSubjects] = useState<string[]>([
+    'Data Structures & Algorithms',
+    'Database Management Systems'
+  ]);
+  const [incCustomSub, setIncCustomSub] = useState('');
   const [incPhone, setIncPhone] = useState('+91 98123 00000');
   const [incGender, setIncGender] = useState<Gender>('FEMALE');
   const [incSemester, setIncSemester] = useState(6);
@@ -65,6 +76,12 @@ export const AcademicPortal: React.FC<AcademicPortalProps> = ({ faculty }) => {
   const [showHodModal, setShowHodModal] = useState(false);
   const [hodName, setHodName] = useState('');
   const [hodEmail, setHodEmail] = useState('');
+  const [hodPassword, setHodPassword] = useState('hod123');
+  const [hodSubjects, setHodSubjects] = useState<string[]>([
+    'Cloud Computing & Distributed Systems',
+    'Computer Networks'
+  ]);
+  const [hodCustomSub, setHodCustomSub] = useState('');
   const [hodPhone, setHodPhone] = useState('+91 98150 00000');
   const [hodGender, setHodGender] = useState<Gender>('MALE');
   const [hodDept, setHodDept] = useState('Computer Science & Engineering');
@@ -167,12 +184,14 @@ export const AcademicPortal: React.FC<AcademicPortalProps> = ({ faculty }) => {
       institutionUserId: rollNo,
       name: stdName,
       email: stdEmail,
+      password: stdPassword || 'student123',
       phone: stdPhone,
       role: isHosteller ? 'STUDENT_HOSTELLER' : 'STUDENT_DAYSCHOLAR',
       gender: stdGender,
       department: faculty.department || 'Computer Science & Engineering',
       semester: Number(stdSemester),
       section: stdSection,
+      campus: 'Shahpur Campus',
       studentType: stdType,
       hostelCategory: isHosteller ? (stdGender === 'FEMALE' ? 'GIRLS_HOSTEL' : 'BOYS_HOSTEL') : undefined,
       hostelBlock: isHosteller ? stdHostelBlock : undefined,
@@ -209,12 +228,17 @@ export const AcademicPortal: React.FC<AcademicPortalProps> = ({ faculty }) => {
       institutionUserId: staffId,
       name: incName,
       email: incEmail,
+      password: incPassword || 'faculty123',
       phone: incPhone,
       role: 'CLASS_INCHARGE',
+      isClassIncharge: true,
       gender: incGender,
       department: faculty.department || 'Computer Science & Engineering',
       semester: Number(incSemester),
       section: incSection,
+      campus: 'Shahpur Campus',
+      subjects: incSubjects.length > 0 ? incSubjects : ['Computer Science', 'Data Structures & Algorithms'],
+      teachingClasses: [`Semester ${incSemester} - Section ${incSection}`],
       avatarUrl: incGender === 'FEMALE'
         ? 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150'
         : 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150',
@@ -242,10 +266,14 @@ export const AcademicPortal: React.FC<AcademicPortalProps> = ({ faculty }) => {
       institutionUserId: staffId,
       name: hodName,
       email: hodEmail,
+      password: hodPassword || 'hod123',
       phone: hodPhone,
       role: 'HOD',
       gender: hodGender,
       department: hodDept,
+      campus: 'Shahpur Campus',
+      subjects: hodSubjects.length > 0 ? hodSubjects : ['Cloud Computing & Distributed Systems', 'Computer Networks'],
+      teachingClasses: [`${hodDept} Department Lectures`],
       avatarUrl: hodGender === 'FEMALE'
         ? 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150'
         : 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150',
@@ -330,6 +358,59 @@ export const AcademicPortal: React.FC<AcademicPortalProps> = ({ faculty }) => {
             <PlusCircle className="w-4 h-4" />
             <span>Publish Notice</span>
           </button>
+        </div>
+      </div>
+
+      {/* Teaching Portfolio & Multi-Subject Responsibility */}
+      <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-2xs space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-slate-100">
+          <div className="flex items-center gap-2">
+            <BookOpen className="w-4 h-4 text-brand-600" />
+            <h2 className="font-bold text-slate-900 text-sm">
+              Teaching Faculty Portfolio (Multi-Subject Instruction)
+            </h2>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+              Active Lectures Assigned
+            </span>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-100 text-brand-800">
+              Campus: Shahpur
+            </span>
+          </div>
+        </div>
+
+        <p className="text-xs text-slate-600">
+          In CTGI, Teaching Faculty, Class Incharges, HODs, and HOIs all take active class lectures. A single faculty member teaches multiple subjects across their department and assigned classes.
+        </p>
+
+        <div className="space-y-1.5 pt-1">
+          <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+            Active Teaching Subjects:
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {(faculty.subjects && faculty.subjects.length > 0
+              ? faculty.subjects
+              : ['Data Structures & Algorithms', 'Database Management Systems', 'Object Oriented Programming']
+            ).map((subj, idx) => (
+              <span
+                key={idx}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-brand-50 text-brand-800 border border-brand-200 shadow-2xs"
+              >
+                <Tag className="w-3 h-3 text-brand-600" />
+                {subj}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <div className="text-[11px] text-slate-500 pt-2 flex flex-wrap items-center gap-4 border-t border-slate-100">
+          <div>
+            <strong>Teaching Scope:</strong> {faculty.semester ? `Semester ${faculty.semester} (Sec ${faculty.section || 'A'})` : `${faculty.department || 'Department'} Class Lectures`}
+          </div>
+          <div>
+            <strong>Academic Duty:</strong> {faculty.role === 'CLASS_INCHARGE' ? 'Class Incharge & Teaching Faculty' : faculty.role === 'HOD' ? 'Head of Department & Teaching Faculty' : 'Head of Institute & Teaching Faculty'}
+          </div>
         </div>
       </div>
 
@@ -611,6 +692,22 @@ export const AcademicPortal: React.FC<AcademicPortalProps> = ({ faculty }) => {
                 />
               </div>
 
+              <div>
+                <label className="block text-slate-700 font-semibold mb-1 flex items-center gap-1.5">
+                  <Key className="w-3.5 h-3.5 text-brand-600" />
+                  Account Password *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Set student login password"
+                  value={stdPassword}
+                  onChange={(e) => setStdPassword(e.target.value)}
+                  className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-mono text-xs"
+                />
+                <p className="text-[10px] text-slate-500 mt-1">Student will use this password to log in.</p>
+              </div>
+
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="block text-slate-700 font-semibold mb-1">Phone Number</label>
@@ -749,6 +846,22 @@ export const AcademicPortal: React.FC<AcademicPortalProps> = ({ faculty }) => {
                 />
               </div>
 
+              <div>
+                <label className="block text-slate-700 font-semibold mb-1 flex items-center gap-1.5">
+                  <Key className="w-3.5 h-3.5 text-purple-600" />
+                  Account Password *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Set faculty login password"
+                  value={incPassword}
+                  onChange={(e) => setIncPassword(e.target.value)}
+                  className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-mono text-xs"
+                />
+                <p className="text-[10px] text-slate-500 mt-1">Class Incharge will use this password to log in.</p>
+              </div>
+
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="block text-slate-700 font-semibold mb-1">Gender</label>
@@ -799,6 +912,107 @@ export const AcademicPortal: React.FC<AcademicPortalProps> = ({ faculty }) => {
                 </div>
               </div>
 
+              {/* Teaching Subjects - Single Teacher Teaches Multiple Subjects */}
+              <div className="bg-purple-50/70 p-3 rounded-xl border border-purple-200 space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="block text-slate-800 font-bold text-[11px] flex items-center gap-1">
+                    <BookOpen className="w-3.5 h-3.5 text-purple-600" />
+                    Assigned Teaching Subjects ({incSubjects.length})
+                  </label>
+                  <span className="text-[10px] text-purple-700 font-bold bg-purple-100 px-2 py-0.5 rounded-full">
+                    Multi-Subject
+                  </span>
+                </div>
+                <p className="text-[10px] text-slate-600 leading-tight">
+                  Class Incharge and Teaching Faculty are the same body. Single teacher can teach multiple subjects.
+                </p>
+
+                {/* Subject tags */}
+                <div className="flex flex-wrap gap-1.5 min-h-[30px] p-2 bg-white border border-purple-200 rounded-lg">
+                  {incSubjects.length === 0 ? (
+                    <span className="text-[11px] text-slate-400 italic">No subjects added. Select or type below.</span>
+                  ) : (
+                    incSubjects.map((sub, idx) => (
+                      <span
+                        key={idx}
+                        className="inline-flex items-center gap-1 bg-purple-100 text-purple-900 border border-purple-300 px-2 py-0.5 rounded-md text-[11px] font-medium"
+                      >
+                        {sub}
+                        <button
+                          type="button"
+                          onClick={() => setIncSubjects(incSubjects.filter((_, i) => i !== idx))}
+                          className="text-purple-600 hover:text-purple-900 font-bold ml-0.5"
+                        >
+                          ✕
+                        </button>
+                      </span>
+                    ))
+                  )}
+                </div>
+
+                {/* Custom subject adder */}
+                <div className="flex gap-1.5">
+                  <input
+                    type="text"
+                    placeholder="Enter custom subject..."
+                    value={incCustomSub}
+                    onChange={(e) => setIncCustomSub(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (incCustomSub.trim() && !incSubjects.includes(incCustomSub.trim())) {
+                          setIncSubjects([...incSubjects, incCustomSub.trim()]);
+                          setIncCustomSub('');
+                        }
+                      }
+                    }}
+                    className="flex-1 p-2 bg-white border border-slate-300 rounded-lg text-xs"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (incCustomSub.trim() && !incSubjects.includes(incCustomSub.trim())) {
+                        setIncSubjects([...incSubjects, incCustomSub.trim()]);
+                        setIncCustomSub('');
+                      }
+                    }}
+                    className="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-bold"
+                  >
+                    + Add
+                  </button>
+                </div>
+
+                {/* Quick Add Pills */}
+                <div className="pt-1">
+                  <div className="text-[10px] text-slate-500 font-bold mb-1">Quick Select Subjects:</div>
+                  <div className="flex flex-wrap gap-1 max-h-24 overflow-y-auto">
+                    {COMMON_TEACHING_SUBJECTS.slice(0, 10).map((subj) => {
+                      const selected = incSubjects.includes(subj);
+                      return (
+                        <button
+                          type="button"
+                          key={subj}
+                          onClick={() => {
+                            if (selected) {
+                              setIncSubjects(incSubjects.filter(s => s !== subj));
+                            } else {
+                              setIncSubjects([...incSubjects, subj]);
+                            }
+                          }}
+                          className={`text-[10px] px-2 py-0.5 rounded-md border transition-all ${
+                            selected
+                              ? 'bg-purple-600 border-purple-600 text-white font-bold'
+                              : 'bg-white border-slate-200 text-slate-600 hover:bg-purple-50'
+                          }`}
+                        >
+                          {selected ? `✓ ${subj}` : `+ ${subj}`}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
               <div className="pt-2 flex gap-2">
                 <button type="button" onClick={() => setShowInchargeModal(false)} className="flex-1 py-2.5 bg-slate-100 text-slate-700 font-semibold rounded-xl">Cancel</button>
                 <button type="submit" className="flex-1 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl shadow-md">Register Class Incharge</button>
@@ -842,6 +1056,22 @@ export const AcademicPortal: React.FC<AcademicPortalProps> = ({ faculty }) => {
                 />
               </div>
 
+              <div>
+                <label className="block text-slate-700 font-semibold mb-1 flex items-center gap-1.5">
+                  <Key className="w-3.5 h-3.5 text-emerald-600" />
+                  Account Password *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Set HOD login password"
+                  value={hodPassword}
+                  onChange={(e) => setHodPassword(e.target.value)}
+                  className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-mono text-xs"
+                />
+                <p className="text-[10px] text-slate-500 mt-1">HOD will use this password to log in.</p>
+              </div>
+
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="block text-slate-700 font-semibold mb-1">Gender</label>
@@ -879,6 +1109,107 @@ export const AcademicPortal: React.FC<AcademicPortalProps> = ({ faculty }) => {
                   <option value="Pharmacy & Health Sciences">Pharmacy & Health Sciences</option>
                   <option value="Management & Commerce">Management & Commerce</option>
                 </select>
+              </div>
+
+              {/* Teaching Responsibilities - HOD Also Takes Classes */}
+              <div className="bg-emerald-50/70 p-3 rounded-xl border border-emerald-200 space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="block text-slate-800 font-bold text-[11px] flex items-center gap-1">
+                    <BookOpen className="w-3.5 h-3.5 text-emerald-600" />
+                    HOD Teaching Subjects ({hodSubjects.length})
+                  </label>
+                  <span className="text-[10px] text-emerald-700 font-bold bg-emerald-100 px-2 py-0.5 rounded-full">
+                    HOD Takes Classes
+                  </span>
+                </div>
+                <p className="text-[10px] text-slate-600 leading-tight">
+                  In addition to administrative leadership, HODs actively take lecture classes and teach multiple subjects.
+                </p>
+
+                {/* Subject tags */}
+                <div className="flex flex-wrap gap-1.5 min-h-[30px] p-2 bg-white border border-emerald-200 rounded-lg">
+                  {hodSubjects.length === 0 ? (
+                    <span className="text-[11px] text-slate-400 italic">No subjects added. Select or type below.</span>
+                  ) : (
+                    hodSubjects.map((sub, idx) => (
+                      <span
+                        key={idx}
+                        className="inline-flex items-center gap-1 bg-emerald-100 text-emerald-900 border border-emerald-300 px-2 py-0.5 rounded-md text-[11px] font-medium"
+                      >
+                        {sub}
+                        <button
+                          type="button"
+                          onClick={() => setHodSubjects(hodSubjects.filter((_, i) => i !== idx))}
+                          className="text-emerald-600 hover:text-emerald-900 font-bold ml-0.5"
+                        >
+                          ✕
+                        </button>
+                      </span>
+                    ))
+                  )}
+                </div>
+
+                {/* Custom subject adder */}
+                <div className="flex gap-1.5">
+                  <input
+                    type="text"
+                    placeholder="Enter custom subject..."
+                    value={hodCustomSub}
+                    onChange={(e) => setHodCustomSub(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (hodCustomSub.trim() && !hodSubjects.includes(hodCustomSub.trim())) {
+                          setHodSubjects([...hodSubjects, hodCustomSub.trim()]);
+                          setHodCustomSub('');
+                        }
+                      }
+                    }}
+                    className="flex-1 p-2 bg-white border border-slate-300 rounded-lg text-xs"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (hodCustomSub.trim() && !hodSubjects.includes(hodCustomSub.trim())) {
+                        setHodSubjects([...hodSubjects, hodCustomSub.trim()]);
+                        setHodCustomSub('');
+                      }
+                    }}
+                    className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold"
+                  >
+                    + Add
+                  </button>
+                </div>
+
+                {/* Quick Add Pills */}
+                <div className="pt-1">
+                  <div className="text-[10px] text-slate-500 font-bold mb-1">Quick Select Subjects:</div>
+                  <div className="flex flex-wrap gap-1 max-h-24 overflow-y-auto">
+                    {COMMON_TEACHING_SUBJECTS.slice(0, 10).map((subj) => {
+                      const selected = hodSubjects.includes(subj);
+                      return (
+                        <button
+                          type="button"
+                          key={subj}
+                          onClick={() => {
+                            if (selected) {
+                              setHodSubjects(hodSubjects.filter(s => s !== subj));
+                            } else {
+                              setHodSubjects([...hodSubjects, subj]);
+                            }
+                          }}
+                          className={`text-[10px] px-2 py-0.5 rounded-md border transition-all ${
+                            selected
+                              ? 'bg-emerald-600 border-emerald-600 text-white font-bold'
+                              : 'bg-white border-slate-200 text-slate-600 hover:bg-emerald-50'
+                          }`}
+                        >
+                          {selected ? `✓ ${subj}` : `+ ${subj}`}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
 
               <div className="pt-2 flex gap-2">

@@ -43,6 +43,10 @@ export interface User {
   classInchargeName?: string;
   guardianName?: string;
   guardianPhone?: string;
+  password?: string;     // Explicit account password
+  subjects?: string[];   // Multiple subjects taught by teacher/incharge/HOD/HOI
+  isClassIncharge?: boolean; // When teaching faculty also acts as class incharge
+  teachingClasses?: string[]; // e.g. ['Sem 3 - Sec A', 'Sem 5 - Sec B']
   campus?: string;       // e.g. 'Shahpur Campus'
   gateLocation?: string; // For Gatekeeper & Security Guards
   shift?: string;        // Morning, Evening, Night

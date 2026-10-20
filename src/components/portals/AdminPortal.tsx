@@ -5,6 +5,7 @@ import {
   CT_DEPARTMENTS, 
   CT_CAMPUSES,
   ACTIVE_CAMPUS_NAME,
+  COMMON_TEACHING_SUBJECTS,
   CTIEMT_BTECH_BRANCHES, 
   CTIEMT_FIRST_YEAR_BRANCH, 
   BOYS_HOSTEL_BLOCKS, 
@@ -68,6 +69,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ admin }) => {
   // --- FORM STATE 1: STUDENTS ONLY ---
   const [stdName, setStdName] = useState('');
   const [stdEmail, setStdEmail] = useState('');
+  const [stdPassword, setStdPassword] = useState('student123');
   const [stdPhone, setStdPhone] = useState('+91 98765 00000');
   const [stdGender, setStdGender] = useState<Gender>('MALE');
   const [stdDept, setStdDept] = useState('CTIEMT');
@@ -84,6 +86,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ admin }) => {
   const [wsRole, setWsRole] = useState<'HOSTEL_WARDEN' | 'GATEKEEPER'>('HOSTEL_WARDEN');
   const [wsName, setWsName] = useState('');
   const [wsEmail, setWsEmail] = useState('');
+  const [wsPassword, setWsPassword] = useState('warden123');
   const [wsPhone, setWsPhone] = useState('+91 98123 00000');
   const [wsGender, setWsGender] = useState<Gender>('MALE');
   const [wsWing, setWsWing] = useState<'BOYS_HOSTEL' | 'GIRLS_HOSTEL'>('BOYS_HOSTEL');
@@ -94,17 +97,25 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ admin }) => {
   const [acadRole, setAcadRole] = useState<'CLASS_INCHARGE' | 'FACULTY' | 'HOD' | 'HOI'>('CLASS_INCHARGE');
   const [acadName, setAcadName] = useState('');
   const [acadEmail, setAcadEmail] = useState('');
+  const [acadPassword, setAcadPassword] = useState('faculty123');
   const [acadPhone, setAcadPhone] = useState('+91 98150 00000');
   const [acadGender, setAcadGender] = useState<Gender>('FEMALE');
   const [acadDept, setAcadDept] = useState('CTIEMT');
   const [acadBranch, setAcadBranch] = useState('CSE');
   const [acadSemester, setAcadSemester] = useState<number>(6);
   const [acadSection, setAcadSection] = useState('A');
+  const [acadSubjects, setAcadSubjects] = useState<string[]>([
+    'Data Structures & Algorithms',
+    'Database Management Systems'
+  ]);
+  const [customSubjectText, setCustomSubjectText] = useState('');
+  const [acadTakesClass, setAcadTakesClass] = useState(true);
 
   // --- FORM STATE 4: REST ALL DEPARTMENT ACCOUNTS ---
   const [allDeptRole, setAllDeptRole] = useState<UserRole>('FEE_STAFF');
   const [allDeptName, setAllDeptName] = useState('');
   const [allDeptEmail, setAllDeptEmail] = useState('');
+  const [allDeptPassword, setAllDeptPassword] = useState('staff123');
   const [allDeptPhone, setAllDeptPhone] = useState('+91 98721 00000');
   const [allDeptGender, setAllDeptGender] = useState<Gender>('MALE');
   const [allDeptOffice, setAllDeptOffice] = useState('Accounts & Finance');
@@ -112,6 +123,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ admin }) => {
   // --- FORM STATE 5: SECURITY GUARDS ---
   const [guardName, setGuardName] = useState('');
   const [guardEmail, setGuardEmail] = useState('');
+  const [guardPassword, setGuardPassword] = useState('guard123');
   const [guardPhone, setGuardPhone] = useState('+91 99112 00000');
   const [guardGender, setGuardGender] = useState<Gender>('MALE');
   const [guardSector, setGuardSector] = useState('Campus Gate Patrol');
@@ -175,6 +187,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ admin }) => {
       guardianName: stdGuardianName,
       guardianPhone: stdGuardianPhone,
       campus: 'Shahpur Campus',
+      password: stdPassword || 'student123',
       active: true,
       createdAt: new Date().toISOString()
     };
@@ -184,6 +197,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ admin }) => {
     setStdName('');
     setStdEmail('');
     setStdRoom('');
+    setStdPassword('student123');
     loadData();
     setSuccessBanner(`Student [${newStudent.name}] created in ${stdDept} (Branch: ${computedBranch}, Year: ${academicYear}). Roll No: ${rollNo}`);
     setTimeout(() => setSuccessBanner(null), 5000);
@@ -211,6 +225,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ admin }) => {
       gateLocation: !isWarden ? wsGate : undefined,
       shift: !isWarden ? wsShift : undefined,
       campus: 'Shahpur Campus',
+      password: wsPassword || 'warden123',
       active: true,
       createdAt: new Date().toISOString()
     };
@@ -219,6 +234,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ admin }) => {
     setModalType(null);
     setWsName('');
     setWsEmail('');
+    setWsPassword('warden123');
     loadData();
     setSuccessBanner(`${wsRole.replace(/_/g, ' ')} [${newUser.name}] provisioned successfully. ID: ${staffId}`);
     setTimeout(() => setSuccessBanner(null), 5000);
@@ -231,6 +247,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ admin }) => {
 
     const prefix = acadRole === 'HOI' ? 'HOI' : acadRole === 'HOD' ? 'HOD' : acadRole === 'CLASS_INCHARGE' ? 'INC' : 'FAC';
     const staffId = `CTGI/FAC/${prefix}/${Math.floor(100 + Math.random() * 900)}`;
+    const assignedSubjects = acadSubjects.length > 0 ? acadSubjects : ['Core Engineering Fundamentals'];
 
     const newUser: User = {
       id: `user-${Date.now()}`,
@@ -242,9 +259,13 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ admin }) => {
       gender: acadGender,
       department: acadDept,
       branch: acadDept === 'CTIEMT' ? acadBranch : undefined,
-      semester: acadRole === 'CLASS_INCHARGE' ? Number(acadSemester) : undefined,
-      section: acadRole === 'CLASS_INCHARGE' ? acadSection : undefined,
+      semester: (acadRole === 'CLASS_INCHARGE' || acadTakesClass) ? Number(acadSemester) : undefined,
+      section: (acadRole === 'CLASS_INCHARGE' || acadTakesClass) ? acadSection : undefined,
+      isClassIncharge: acadRole === 'CLASS_INCHARGE',
+      subjects: assignedSubjects,
+      teachingClasses: acadTakesClass ? [`Sem ${acadSemester} - Sec ${acadSection}`] : undefined,
       campus: 'Shahpur Campus',
+      password: acadPassword || 'faculty123',
       active: true,
       createdAt: new Date().toISOString()
     };
@@ -253,8 +274,9 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ admin }) => {
     setModalType(null);
     setAcadName('');
     setAcadEmail('');
+    setAcadPassword('faculty123');
     loadData();
-    setSuccessBanner(`${acadRole.replace(/_/g, ' ')} [${newUser.name}] registered for ${acadDept}. ID: ${staffId}`);
+    setSuccessBanner(`Academic ${acadRole.replace(/_/g, ' ')} [${newUser.name}] registered (${assignedSubjects.length} subjects taught). ID: ${staffId}`);
     setTimeout(() => setSuccessBanner(null), 5000);
   };
 
@@ -275,6 +297,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ admin }) => {
       gender: allDeptGender,
       department: allDeptOffice,
       campus: 'Shahpur Campus',
+      password: allDeptPassword || 'staff123',
       active: true,
       createdAt: new Date().toISOString()
     };
@@ -283,6 +306,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ admin }) => {
     setModalType(null);
     setAllDeptName('');
     setAllDeptEmail('');
+    setAllDeptPassword('staff123');
     loadData();
     setSuccessBanner(`${allDeptRole.replace(/_/g, ' ')} [${newUser.name}] registered for ${allDeptOffice}. ID: ${staffId}`);
     setTimeout(() => setSuccessBanner(null), 5000);
@@ -307,6 +331,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ admin }) => {
       gateLocation: guardSector,
       shift: guardShift,
       campus: 'Shahpur Campus',
+      password: guardPassword || 'guard123',
       active: true,
       createdAt: new Date().toISOString()
     };
@@ -1140,7 +1165,25 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ admin }) => {
                 </div>
               </div>
 
-              {/* Gender & Hostel Segregation */}
+              {/* Password Option */}
+              <div>
+                <label className="block text-slate-700 font-bold mb-1 flex items-center justify-between">
+                  <span>Account Password *</span>
+                  <span className="text-[10px] text-brand-600 font-medium">Customizable credentials</span>
+                </label>
+                <div className="relative">
+                  <Key className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-3" />
+                  <input
+                    type="text"
+                    required
+                    value={stdPassword}
+                    onChange={(e) => setStdPassword(e.target.value)}
+                    placeholder="Set student password"
+                    className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-mono text-xs font-semibold text-slate-900"
+                  />
+                </div>
+                <p className="text-[10px] text-slate-400 mt-1">Student will use their Roll No/Email and this password to sign in.</p>
+              </div>
               <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
                 <label className="block text-slate-700 font-bold mb-1 text-[10px] uppercase">
                   Gender (Hostel Wing Segregation) *
@@ -1317,6 +1360,25 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ admin }) => {
                 />
               </div>
 
+              {/* Password Option */}
+              <div>
+                <label className="block text-slate-700 font-bold mb-1 flex items-center justify-between">
+                  <span>Account Password *</span>
+                  <span className="text-[10px] text-purple-600 font-medium">Customizable credentials</span>
+                </label>
+                <div className="relative">
+                  <Key className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-3" />
+                  <input
+                    type="text"
+                    required
+                    value={wsPassword}
+                    onChange={(e) => setWsPassword(e.target.value)}
+                    placeholder="Set staff password"
+                    className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-mono text-xs font-semibold text-slate-900"
+                  />
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="block text-slate-700 font-semibold mb-1">Gender</label>
@@ -1418,11 +1480,14 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ admin }) => {
                   onChange={(e) => setAcadRole(e.target.value as any)}
                   className="w-full p-2.5 bg-blue-50 border border-blue-200 rounded-xl font-bold text-blue-900"
                 >
-                  <option value="CLASS_INCHARGE">Class Incharge</option>
+                  <option value="CLASS_INCHARGE">Teaching Faculty & Class Incharge</option>
                   <option value="FACULTY">Teaching Faculty</option>
-                  <option value="HOD">Head of Department (HOD)</option>
-                  <option value="HOI">Head of Institution (HOI)</option>
+                  <option value="HOD">Head of Department (HOD • Takes Classes & Teaches Subjects)</option>
+                  <option value="HOI">Head of Institution (HOI • Takes Classes & Senior Professor)</option>
                 </select>
+                <p className="text-[10px] text-blue-700 mt-1">
+                  ★ In CTGI, Class Incharges & Faculty are the same teaching body. Single teachers teach multiple subjects, and HOD & HOI also take classes.
+                </p>
               </div>
 
               <div>
@@ -1439,7 +1504,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ admin }) => {
               </div>
 
               <div>
-                <label className="block text-slate-700 font-semibold mb-1">Full Faculty Name *</label>
+                <label className="block text-slate-700 font-semibold mb-1">Full Teacher / Professor Name *</label>
                 <input
                   type="text"
                   required
@@ -1473,62 +1538,171 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ admin }) => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="block text-slate-700 font-semibold mb-1">Gender</label>
-                  <select
-                    value={acadGender}
-                    onChange={(e) => setAcadGender(e.target.value as Gender)}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-medium"
-                  >
-                    <option value="FEMALE">Female</option>
-                    <option value="MALE">Male</option>
-                  </select>
+              {/* Account Password Field */}
+              <div>
+                <label className="block text-slate-700 font-bold mb-1 flex items-center justify-between">
+                  <span>Portal Password *</span>
+                  <span className="text-[10px] text-blue-600 font-medium">Customizable credentials</span>
+                </label>
+                <div className="relative">
+                  <Key className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-3" />
+                  <input
+                    type="text"
+                    required
+                    value={acadPassword}
+                    onChange={(e) => setAcadPassword(e.target.value)}
+                    placeholder="Set teacher password"
+                    className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-mono text-xs font-semibold text-slate-900"
+                  />
                 </div>
-                {acadRole === 'CLASS_INCHARGE' && (
+              </div>
+
+              {/* Multiple Subjects Taught Section */}
+              <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200 space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="font-bold text-slate-900 text-xs">
+                    Assigned Subjects (Single Teacher Teaches Multiple Subjects) *
+                  </label>
+                  <span className="text-[10px] font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full">
+                    {acadSubjects.length} Subjects
+                  </span>
+                </div>
+                
+                {/* Active Subject Tags */}
+                <div className="flex flex-wrap gap-1.5 min-h-[32px] p-2 bg-white rounded-xl border border-slate-200">
+                  {acadSubjects.map((sub, i) => (
+                    <span
+                      key={i}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-50 text-blue-900 border border-blue-200 rounded-lg text-[11px] font-semibold"
+                    >
+                      <span>{sub}</span>
+                      <button
+                        type="button"
+                        onClick={() => setAcadSubjects(acadSubjects.filter((_, idx) => idx !== i))}
+                        className="text-blue-500 hover:text-blue-800 font-bold ml-1 text-xs"
+                      >
+                        ✕
+                      </button>
+                    </span>
+                  ))}
+                  {acadSubjects.length === 0 && (
+                    <span className="text-slate-400 text-[11px] italic">No subjects added yet. Select or type below.</span>
+                  )}
+                </div>
+
+                {/* Add Custom Subject */}
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Type subject name (e.g. Distributed Systems)..."
+                    value={customSubjectText}
+                    onChange={(e) => setCustomSubjectText(e.target.value)}
+                    className="flex-1 p-2 bg-white border border-slate-300 rounded-xl text-xs"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (customSubjectText.trim() && !acadSubjects.includes(customSubjectText.trim())) {
+                          setAcadSubjects([...acadSubjects, customSubjectText.trim()]);
+                          setCustomSubjectText('');
+                        }
+                      }
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (customSubjectText.trim() && !acadSubjects.includes(customSubjectText.trim())) {
+                        setAcadSubjects([...acadSubjects, customSubjectText.trim()]);
+                        setCustomSubjectText('');
+                      }
+                    }}
+                    className="px-3 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-xs"
+                  >
+                    + Add
+                  </button>
+                </div>
+
+                {/* Quick Add Subject Pills */}
+                <div>
+                  <span className="text-[10px] text-slate-400 font-semibold block mb-1">Quick Add Common Subjects:</span>
+                  <div className="flex flex-wrap gap-1">
+                    {COMMON_TEACHING_SUBJECTS.slice(0, 8).map((cs) => {
+                      const isAdded = acadSubjects.includes(cs);
+                      return (
+                        <button
+                          key={cs}
+                          type="button"
+                          onClick={() => {
+                            if (isAdded) {
+                              setAcadSubjects(acadSubjects.filter(s => s !== cs));
+                            } else {
+                              setAcadSubjects([...acadSubjects, cs]);
+                            }
+                          }}
+                          className={`text-[10px] px-2 py-0.5 rounded-md font-medium border transition-colors ${
+                            isAdded
+                              ? 'bg-blue-600 text-white border-blue-600'
+                              : 'bg-white text-slate-600 border-slate-200 hover:border-blue-300'
+                          }`}
+                        >
+                          {isAdded ? `✓ ${cs}` : `+ ${cs}`}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* Class Teaching & Incharge Scope */}
+              <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+                <div className="font-bold text-slate-800 text-xs flex items-center justify-between">
+                  <span>Class Teaching & Incharge Scope</span>
+                  <span className="text-[10.5px] text-emerald-700 font-bold">
+                    {acadRole === 'CLASS_INCHARGE' ? 'Class Incharge + Teaching' : 'Active Teaching Class'}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="block text-slate-700 font-semibold mb-1">Assigned Semester</label>
+                    <label className="block text-slate-700 font-semibold mb-1">Teaching Semester</label>
                     <select
                       value={acadSemester}
                       onChange={(e) => setAcadSemester(Number(e.target.value))}
-                      className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold"
+                      className="w-full p-2 bg-white border border-slate-300 rounded-xl font-bold"
                     >
                       {[1, 2, 3, 4, 5, 6, 7, 8].map(s => (
                         <option key={s} value={s}>Semester {s}</option>
                       ))}
                     </select>
                   </div>
-                )}
-              </div>
-
-              {acadRole === 'CLASS_INCHARGE' && (
-                <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className="block text-slate-700 font-semibold mb-1">Section</label>
                     <input
                       type="text"
                       value={acadSection}
                       onChange={(e) => setAcadSection(e.target.value)}
-                      className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold"
+                      className="w-full p-2 bg-white border border-slate-300 rounded-xl font-bold"
+                      placeholder="e.g. A"
                     />
                   </div>
-                  {acadDept === 'CTIEMT' && (
-                    <div>
-                      <label className="block text-slate-700 font-semibold mb-1">Assigned Branch</label>
-                      <select
-                        value={acadBranch}
-                        onChange={(e) => setAcadBranch(e.target.value)}
-                        className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-semibold"
-                      >
-                        <option value="APPLIED SCIENCES">Applied Sciences (1st Year)</option>
-                        {CTIEMT_BTECH_BRANCHES.map(b => (
-                          <option key={b} value={b}>{b}</option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
                 </div>
-              )}
+
+                {acadDept === 'CTIEMT' && (
+                  <div>
+                    <label className="block text-slate-700 font-semibold mb-1">Assigned Branch (CTIEMT)</label>
+                    <select
+                      value={acadBranch}
+                      onChange={(e) => setAcadBranch(e.target.value)}
+                      className="w-full p-2 bg-white border border-slate-300 rounded-xl font-semibold"
+                    >
+                      <option value="APPLIED SCIENCES">Applied Sciences (1st Year Common)</option>
+                      {CTIEMT_BTECH_BRANCHES.map(b => (
+                        <option key={b} value={b}>{b}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+              </div>
 
               <div className="pt-2 flex gap-2">
                 <button type="button" onClick={() => setModalType(null)} className="flex-1 py-2.5 bg-slate-100 text-slate-700 font-semibold rounded-xl">Cancel</button>
@@ -1630,6 +1804,25 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ admin }) => {
                 </div>
               </div>
 
+              {/* Password Option */}
+              <div>
+                <label className="block text-slate-700 font-bold mb-1 flex items-center justify-between">
+                  <span>Portal Password *</span>
+                  <span className="text-[10px] text-emerald-600 font-medium">Customizable credentials</span>
+                </label>
+                <div className="relative">
+                  <Key className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-3" />
+                  <input
+                    type="text"
+                    required
+                    value={allDeptPassword}
+                    onChange={(e) => setAllDeptPassword(e.target.value)}
+                    placeholder="Set department staff password"
+                    className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-mono text-xs font-semibold text-slate-900"
+                  />
+                </div>
+              </div>
+
               <div className="pt-2 flex gap-2">
                 <button type="button" onClick={() => setModalType(null)} className="flex-1 py-2.5 bg-slate-100 text-slate-700 font-semibold rounded-xl">Cancel</button>
                 <button type="submit" className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md">Create Department Account</button>
@@ -1688,6 +1881,25 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ admin }) => {
                   onChange={(e) => setGuardEmail(e.target.value)}
                   className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl"
                 />
+              </div>
+
+              {/* Password Option */}
+              <div>
+                <label className="block text-slate-700 font-bold mb-1 flex items-center justify-between">
+                  <span>Guard Portal Password *</span>
+                  <span className="text-[10px] text-amber-600 font-medium">Customizable credentials</span>
+                </label>
+                <div className="relative">
+                  <Key className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-3" />
+                  <input
+                    type="text"
+                    required
+                    value={guardPassword}
+                    onChange={(e) => setGuardPassword(e.target.value)}
+                    placeholder="Set guard password"
+                    className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-mono text-xs font-semibold text-slate-900"
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-2">

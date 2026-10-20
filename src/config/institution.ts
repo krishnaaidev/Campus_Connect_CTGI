@@ -83,10 +83,25 @@ export const CT_DEPARTMENTS: CTDepartmentInfo[] = [
   },
   {
     code: 'CCPC',
-    name: 'CT Community Polytechnic College',
-    subDepartments: ['Skill Development', 'Vocational Trades', 'Community Technical Training'],
-    description: 'Community Technical Education & Skill Building'
+    name: 'Career Counselling and Placement Cell',
+    subDepartments: ['Career Guidance', 'Placement Training', 'Corporate Relations', 'Skill Development'],
+    description: 'Career Counselling, Placement Drives, Corporate Engagement & Professional Training'
   }
+];
+
+export const COMMON_TEACHING_SUBJECTS = [
+  'Data Structures & Algorithms',
+  'Database Management Systems',
+  'Object Oriented Programming',
+  'Computer Networks',
+  'Operating Systems',
+  'Artificial Intelligence & ML',
+  'Cloud Computing',
+  'Cyber Security',
+  'Software Engineering',
+  'Discrete Mathematics',
+  'Applied Physics',
+  'Engineering Mathematics'
 ];
 
 export const CTIEMT_BTECH_BRANCHES = [
